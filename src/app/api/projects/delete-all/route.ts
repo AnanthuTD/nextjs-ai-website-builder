@@ -6,6 +6,7 @@ export async function DELETE() {
     await prisma.project.deleteMany({});
     return NextResponse.json({ message: "All projects deleted" });
   } catch (error) {
+		console.error(error)
     return NextResponse.json(
       { error: "Failed to delete all projects" },
       { status: 500 }

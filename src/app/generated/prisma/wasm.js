@@ -136,7 +136,8 @@ exports.Prisma.ChatScalarFieldEnum = {
   message: 'message',
   isAi: 'isAi',
   aiModel: 'aiModel',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  isRefinedPrompt: 'isRefinedPrompt'
 };
 
 exports.Prisma.ProjectDataScalarFieldEnum = {

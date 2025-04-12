@@ -1,8 +1,5 @@
-export interface IChatFlat {
-	id: string;
-	userId: string;
-	message: string;
-	refinedPrompt?: boolean;
-	isCodeResponse?: boolean;
+import { Chat } from "@/app/generated/prisma";
+
+export interface IChatFlat extends Chat {
 	isStreaming?: boolean;
 }

@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { IChatFlat } from "@/types";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { CircleStopIcon, SendHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 import ChatFlat from "../chat-box/ChatFlat";
-import { generateHtmlCssWithHuggingFace } from "@/services/huggingface";
+import Loader from "../loader";
 import { convertToBlocks } from "@/services/convertToBlocks";
 import { Block } from "../studio-editor";
 import { Colors } from "../ai-modal";
+import { IChatFlat } from "@/types";
+import { getChatsAction } from "@/app/actions/getChats";
+import { createChatAction } from "@/app/actions/createChat";
 import { generateHtmlCss } from "@/services/generateHtmlCss";
-import Loader from "../loader";
+import { generateHtmlCssWithHuggingFace } from "@/services/huggingface";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -20,51 +22,98 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface Props {
-	initialPrompt: string;
-	onUpdateContent: ({ css, html }: { html: string; css: string }) => void;
+	initialPrompt?: string;
 	initialContent?: { html: string; css: string };
+	onUpdateContent: (content: { html: string; css: string }) => void;
 	updateAiGeneratedBlock: (blocks: Block[]) => void;
 	language: string;
 	colors: Colors | null;
-	firstTime: boolean;
+	firstTime?: boolean;
 	projectId?: string;
 }
 
-const AiChatBox = ({
+type AiModel = "gemini" | "deepseek";
+
+const AiChatBox: React.FC<Props> = ({
 	initialPrompt = "",
+	initialContent = { html: "", css: "" },
 	onUpdateContent,
-	initialContent = { css: "", html: "" },
 	updateAiGeneratedBlock,
-	colors,
 	language,
+	colors,
 	firstTime = true,
 	projectId,
-}: Props) => {
-	const { userId: clerkId } = useAuth(); // Replace static userId
+}) => {
+	const { userId: clerkId } = useAuth();
 	const [chats, setChats] = useState<IChatFlat[]>([]);
 	const [message, setMessage] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const chatContainerRef = useRef<HTMLDivElement>(null);
 	const [content, setContent] = useState(initialContent);
-	const [selectedModel, setSelectedModel] = useState<"gimini" | "deepseek">(
-		"deepseek"
-	);
+	const [selectedModel, setSelectedModel] = useState<AiModel>("deepseek");
+	const chatContainerRef = useRef<HTMLDivElement>(null);
 
-	const handleGenerateBlocks = async () => {
-		if (!content.html) return;
+	// Scroll to bottom when chats update
+	useEffect(() => {
+		if (chatContainerRef.current) {
+			chatContainerRef.current.scrollTop =
+				chatContainerRef.current.scrollHeight;
+		}
+	}, [chats]);
+
+	// Handle initial prompt
+	useEffect(() => {
+		if (
+			!firstTime ||
+			!clerkId ||
+			!initialPrompt.trim() ||
+			chats.length ||
+			!projectId
+		)
+			return;
+
+		const initializeChat = async () => {
+			const fetchedChats = await getChatsAction({ projectId });
+			console.log("Fetched chats: ", fetchedChats);
+			setChats(fetchedChats);
+
+			if (fetchedChats.length) return;
+
+			const userMessage: IChatFlat = {
+				id: crypto.randomUUID(),
+				message: initialPrompt,
+				userId: clerkId,
+				isAi: false,
+				projectId,
+				createdAt: new Date(),
+			};
+			const aiMessage: IChatFlat = {
+				id: crypto.randomUUID(),
+				message: "How would you like me to help with this project?",
+				userId: null,
+				isAi: true,
+				projectId,
+				createdAt: new Date(),
+			};
+
+			setChats([aiMessage, userMessage]);
+			await handleSendMessage(initialPrompt);
+		};
+
+		initializeChat();
+	}, [firstTime, clerkId, initialPrompt, chats.length, projectId]);
+
+	const generateBlocks = useCallback(async () => {
+		if (!content.html || isGenerating) return;
 
 		setIsGenerating(true);
 		try {
 			const blocks = await convertToBlocks(content);
-			console.log("Generated blocks:", blocks);
-
-			if (!blocks) {
-				toast.error("No blocks were returned by the AI!");
-				return;
+			if (!blocks?.length) {
+				throw new Error("No blocks generated");
 			}
 
 			updateAiGeneratedBlock(blocks);
@@ -75,184 +124,192 @@ const AiChatBox = ({
 		} finally {
 			setIsGenerating(false);
 		}
-	};
+	}, [content, updateAiGeneratedBlock, isGenerating]);
 
-	useEffect(() => {
-		if (chatContainerRef.current) {
-			chatContainerRef.current.scrollTop =
-				chatContainerRef.current.scrollHeight;
-		}
-	}, [chats]);
+	const generateCode = useCallback(
+		async (prompt: string) => {
+			if (!prompt.trim() || !projectId || isGenerating) return;
 
-	useEffect(() => {
-		if (!firstTime || !clerkId) return;
-
-		if (initialPrompt.trim()) {
-			const aiMessage = {
-				id: crypto.randomUUID(),
-				message: "How would you like me to help with this project?",
-				userId: "ai",
-				refinedPrompt: false,
-			};
-			const userMessage = {
-				id: crypto.randomUUID(),
-				message: initialPrompt,
-				userId: clerkId,
-			};
-			setChats([userMessage, aiMessage]);
-			handleSendMessage(initialPrompt);
-		}
-	}, [initialPrompt, firstTime, clerkId]);
-
-	const handleGenerateCode = async (prompt: string) => {
-		if (!prompt.trim()) return;
-
-		setIsGenerating(true);
-		try {
-			const generateContentFunc =
-				selectedModel === "gimini"
-					? generateHtmlCss
-					: generateHtmlCssWithHuggingFace;
-			const response = await generateContentFunc(
-				prompt,
-				content,
-				language,
-				colors
-			);
-			console.log("AI generated:", response);
-			if (response?.html) {
-				setContent(response);
-				onUpdateContent(response);
-				setChats((prev) => [
-					...prev,
-					{
-						id: crypto.randomUUID(),
-						message:
-							"Here's the generated code based on your request. Let me know if you'd like any changes!",
-						userId: "ai",
-						isCodeResponse: true,
-					},
-				]);
-				toast.success("Code generated successfully");
-			} else {
-				toast.error("Failed to generate code");
-			}
-		} catch (error) {
-			console.error("Code generation error:", error);
-			toast.error("Failed to generate code");
-		} finally {
-			setIsGenerating(false);
-		}
-	};
-
-	const handleSendMessage = async (prompt: string) => {
-		if (!prompt.trim() || isGenerating || !clerkId) {
-			if (!clerkId) toast.error("User not authenticated");
-			return;
-		}
-
-		const newUserMessage = {
-			id: crypto.randomUUID(),
-			message: prompt,
-			userId: clerkId,
-		};
-
-		setChats((prev) => [...prev, newUserMessage]);
-		setMessage("");
-		setIsGenerating(true);
-
-		try {
-			if (!content.html) {
-				// Stream from API route
-				const chatHistory = chats.map((chat) => ({
-					role: chat.userId === clerkId ? "user" : "assistant",
-					content: chat.message,
-				}));
-
-				const response = await fetch("/api/stream-prompt", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						userPrompt: prompt,
-						chatHistory,
-						content,
-						clerkId,
-						projectId,
-					}),
-				});
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Failed to fetch stream");
-				}
-
-				const reader = response.body?.getReader();
-				if (!reader) {
-					throw new Error("No response body");
-				}
-
-				let aiResponse = "";
-				const chatId = crypto.randomUUID();
-				setChats((prev) => [
-					...prev,
-					{
-						id: chatId,
-						message: "",
-						userId: "ai",
-						refinedPrompt: true,
-						isStreaming: true,
-					},
-				]);
-
-				const decoder = new TextDecoder();
-				while (true) {
-					const { done, value } = await reader.read();
-					if (done) break;
-
-					const chunk = decoder.decode(value, { stream: true });
-					aiResponse += chunk;
-					setChats((prev) =>
-						prev.map((chat) =>
-							chat.id === chatId
-								? { ...chat, message: aiResponse, isStreaming: true }
-								: chat
-						)
-					);
-				}
-
-				// Streaming finished
-				setChats((prev) =>
-					prev.map((chat) =>
-						chat.id === chatId ? { ...chat, isStreaming: false } : chat
-					)
+			setIsGenerating(true);
+			try {
+				const generateContentFunc =
+					selectedModel === "gemini"
+						? generateHtmlCss
+						: generateHtmlCssWithHuggingFace;
+				const response = await generateContentFunc(
+					prompt,
+					content,
+					language,
+					colors
 				);
 
-				if (!aiResponse) {
-					toast.error("No response received from AI");
-					setIsGenerating(false);
-					return;
+				if (!response?.html) {
+					throw new Error("No code generated");
 				}
 
-				toast.success("Design specification generated");
-			} else {
-				await handleGenerateCode(prompt);
+				setContent(response);
+				onUpdateContent(response);
+
+				const newChat = await createChatAction({
+					message:
+						"Here's the generated code based on your request. Let me know if you'd like any changes!",
+					aiModel: selectedModel,
+					isAi: true,
+					projectId,
+					createdAt: new Date(),
+				});
+
+				setChats((prev) => [...prev, newChat]);
+				toast.success("Code generated successfully");
+			} catch (error) {
+				console.error("Code generation error:", error);
+				toast.error("Failed to generate code");
+			} finally {
+				setIsGenerating(false);
 			}
-		} catch (error) {
-			console.error("Failed to send message to AI:", error);
-			toast.error(
-				error instanceof Error ? error.message : "Failed to get AI response"
-			);
-			setChats((prev) =>
-				prev.map((chat) =>
-					chat.isStreaming ? { ...chat, isStreaming: false } : chat
-				)
-			);
-		} finally {
-			setIsGenerating(false);
-		}
-	};
+		},
+		[
+			selectedModel,
+			content,
+			language,
+			colors,
+			projectId,
+			onUpdateContent,
+			isGenerating,
+		]
+	);
+
+	const handleSendMessage = useCallback(
+		async (prompt: string) => {
+			if (!prompt.trim() || isGenerating || !clerkId || !projectId) {
+				if (!clerkId) toast.error("User not authenticated");
+				if (!projectId) toast.error("Project ID is required");
+				return;
+			}
+
+			const newUserMessage: IChatFlat = {
+				id: crypto.randomUUID(),
+				message: prompt,
+				userId: clerkId,
+				isAi: false,
+				projectId,
+				createdAt: new Date(),
+			};
+
+			setChats((prev) => {
+				const updatedChats = [...prev, newUserMessage];
+				if (content.html) {
+					generateCode(prompt);
+					return updatedChats;
+				}
+
+				const streamResponse = async () => {
+					setIsGenerating(true);
+					try {
+						const chatHistory = updatedChats.map((chat) => ({
+							role: chat.isAi ? "assistant" : "user",
+							content: chat.message,
+						}));
+
+						const response = await fetch("/api/stream-prompt", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								userPrompt: prompt,
+								chatHistory,
+								content,
+								clerkId,
+								projectId,
+							}),
+						});
+
+						if (!response.ok) {
+							const errorData = await response.json();
+							throw new Error(errorData.error || "Failed to fetch stream");
+						}
+
+						const reader = response.body?.getReader();
+						if (!reader) {
+							throw new Error("No response body");
+						}
+
+						let aiResponse = "";
+						const chatId = crypto.randomUUID();
+						setChats((prevChats) => [
+							...prevChats,
+							{
+								id: chatId,
+								message: "",
+								isStreaming: true,
+								isAi: true,
+								aiModel: "gemini-1.5-flash-latest",
+								projectId,
+								createdAt: new Date(),
+								userId: null,
+								isRefinedPrompt: true,
+							},
+						]);
+
+						const decoder = new TextDecoder();
+						while (true) {
+							const { done, value } = await reader.read();
+							if (done) break;
+
+							const chunk = decoder.decode(value, { stream: true });
+							aiResponse += chunk;
+							setChats((prevChats) =>
+								prevChats.map((chat) =>
+									chat.id === chatId
+										? { ...chat, message: aiResponse, isStreaming: true }
+										: chat
+								)
+							);
+						}
+
+						setChats((prevChats) =>
+							prevChats.map((chat) =>
+								chat.id === chatId ? { ...chat, isStreaming: false } : chat
+							)
+						);
+
+						if (!aiResponse) {
+							throw new Error("No response received from AI");
+						}
+
+						await createChatAction({
+							message: aiResponse,
+							aiModel: "gemini",
+							isAi: true,
+							projectId,
+							createdAt: new Date(),
+						});
+
+						toast.success("Design specification generated");
+					} catch (error) {
+						console.error("Streaming error:", error);
+						toast.error(
+							error instanceof Error
+								? error.message
+								: "Failed to get AI response"
+						);
+						setChats((prevChats) =>
+							prevChats.map((chat) =>
+								chat.isStreaming ? { ...chat, isStreaming: false } : chat
+							)
+						);
+					} finally {
+						setIsGenerating(false);
+					}
+				};
+
+				streamResponse();
+				return updatedChats;
+			});
+
+			setMessage("");
+		},
+		[clerkId, projectId, isGenerating, content, generateCode]
+	);
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
@@ -262,10 +319,8 @@ const AiChatBox = ({
 	};
 
 	return (
-		<div className="rounded-xl grow flex flex-col gap-y-2 p-3 min-h-full justify-between text-white">
-			<div className="flex justify-between items-center">
-				<h3 className="text-lg font-semibold">Design Assistant</h3>
-			</div>
+		<div className="flex flex-col gap-y-2 p-3 min-h-full justify-between text-white rounded-xl">
+			<h3 className="text-lg font-semibold">Design Assistant</h3>
 
 			<div
 				ref={chatContainerRef}
@@ -273,13 +328,13 @@ const AiChatBox = ({
 			>
 				{chats.map((chat) => (
 					<ChatFlat
-						onGenerateCode={handleGenerateCode}
-						chat={chat}
 						key={chat.id}
+						chat={chat}
 						own={chat.userId === clerkId}
+						onGenerateCode={generateCode}
 						isGenerating={
 							isGenerating &&
-							chat.userId === "ai" &&
+							chat.isAi &&
 							chat.id === chats[chats.length - 1]?.id
 						}
 					/>
@@ -294,46 +349,37 @@ const AiChatBox = ({
 
 			<div className="flex items-center gap-2">
 				<Badge
-					onClick={() => {
-						if (!(isGenerating || !content.html)) handleGenerateBlocks();
-					}}
+					onClick={generateBlocks}
 					variant="outline"
 					className={`bg-gray-500 text-white hover:bg-gray-600 border-none ${
-						!(isGenerating || !content.html)
-							? "hover:cursor-pointer"
-							: "hover:cursor-not-allowed"
+						isGenerating || !content.html
+							? "cursor-not-allowed"
+							: "cursor-pointer"
 					}`}
 				>
 					Generate Blocks (AI)
 				</Badge>
-				<Select
-					value={selectedModel}
-					onValueChange={(value: "gimini" | "deepseek") =>
-						setSelectedModel(value)
-					}
-				>
+				<Select value={selectedModel} onValueChange={setSelectedModel}>
 					<SelectTrigger className="w-[100px] bg-gray-700 text-white border-gray-500">
 						<SelectValue placeholder="Select Model" />
 					</SelectTrigger>
 					<SelectContent className="bg-gray-700 text-white border-gray-500">
-						<SelectItem value="gimini">Gemini</SelectItem>
+						<SelectItem value="gemini">Gemini</SelectItem>
 						<SelectItem value="deepseek">Deepseek</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
 
 			<div className="flex gap-2 items-end">
-				<div className="flex-grow">
-					<Textarea
-						value={message}
-						rows={1}
-						className="bg-white focus-visible:ring-indigo-300 resize-none pr-24 text-black"
-						onChange={(e) => setMessage(e.target.value)}
-						onKeyDown={handleKeyDown}
-						placeholder="Type your message..."
-						disabled={isGenerating}
-					/>
-				</div>
+				<Textarea
+					value={message}
+					onChange={(e) => setMessage(e.target.value)}
+					onKeyDown={handleKeyDown}
+					placeholder="Type your message..."
+					disabled={isGenerating}
+					rows={1}
+					className="flex-grow bg-white focus-visible:ring-indigo-300 resize-none pr-24 text-black"
+				/>
 				{isGenerating ? (
 					<CircleStopIcon className="text-white" />
 				) : (

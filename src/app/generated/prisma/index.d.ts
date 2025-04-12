@@ -3528,6 +3528,7 @@ export namespace Prisma {
     isAi: boolean | null
     aiModel: string | null
     createdAt: Date | null
+    isRefinedPrompt: boolean | null
   }
 
   export type ChatMaxAggregateOutputType = {
@@ -3538,6 +3539,7 @@ export namespace Prisma {
     isAi: boolean | null
     aiModel: string | null
     createdAt: Date | null
+    isRefinedPrompt: boolean | null
   }
 
   export type ChatCountAggregateOutputType = {
@@ -3548,6 +3550,7 @@ export namespace Prisma {
     isAi: number
     aiModel: number
     createdAt: number
+    isRefinedPrompt: number
     _all: number
   }
 
@@ -3560,6 +3563,7 @@ export namespace Prisma {
     isAi?: true
     aiModel?: true
     createdAt?: true
+    isRefinedPrompt?: true
   }
 
   export type ChatMaxAggregateInputType = {
@@ -3570,6 +3574,7 @@ export namespace Prisma {
     isAi?: true
     aiModel?: true
     createdAt?: true
+    isRefinedPrompt?: true
   }
 
   export type ChatCountAggregateInputType = {
@@ -3580,6 +3585,7 @@ export namespace Prisma {
     isAi?: true
     aiModel?: true
     createdAt?: true
+    isRefinedPrompt?: true
     _all?: true
   }
 
@@ -3663,6 +3669,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt: Date
+    isRefinedPrompt: boolean
     _count: ChatCountAggregateOutputType | null
     _min: ChatMinAggregateOutputType | null
     _max: ChatMaxAggregateOutputType | null
@@ -3690,6 +3697,7 @@ export namespace Prisma {
     isAi?: boolean
     aiModel?: boolean
     createdAt?: boolean
+    isRefinedPrompt?: boolean
     user?: boolean | Chat$userArgs<ExtArgs>
     project?: boolean | Chat$projectArgs<ExtArgs>
   }, ExtArgs["result"]["chat"]>
@@ -3704,9 +3712,10 @@ export namespace Prisma {
     isAi?: boolean
     aiModel?: boolean
     createdAt?: boolean
+    isRefinedPrompt?: boolean
   }
 
-  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "projectId" | "message" | "isAi" | "aiModel" | "createdAt", ExtArgs["result"]["chat"]>
+  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "projectId" | "message" | "isAi" | "aiModel" | "createdAt" | "isRefinedPrompt", ExtArgs["result"]["chat"]>
   export type ChatInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | Chat$userArgs<ExtArgs>
     project?: boolean | Chat$projectArgs<ExtArgs>
@@ -3726,6 +3735,7 @@ export namespace Prisma {
       isAi: boolean
       aiModel: string
       createdAt: Date
+      isRefinedPrompt: boolean
     }, ExtArgs["result"]["chat"]>
     composites: {}
   }
@@ -4127,6 +4137,7 @@ export namespace Prisma {
     readonly isAi: FieldRef<"Chat", 'Boolean'>
     readonly aiModel: FieldRef<"Chat", 'String'>
     readonly createdAt: FieldRef<"Chat", 'DateTime'>
+    readonly isRefinedPrompt: FieldRef<"Chat", 'Boolean'>
   }
     
 
@@ -6663,7 +6674,8 @@ export namespace Prisma {
     message: 'message',
     isAi: 'isAi',
     aiModel: 'aiModel',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    isRefinedPrompt: 'isRefinedPrompt'
   };
 
   export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
@@ -6939,6 +6951,7 @@ export namespace Prisma {
     isAi?: BoolFilter<"Chat"> | boolean
     aiModel?: StringFilter<"Chat"> | string
     createdAt?: DateTimeFilter<"Chat"> | Date | string
+    isRefinedPrompt?: BoolFilter<"Chat"> | boolean
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
   }
@@ -6951,6 +6964,7 @@ export namespace Prisma {
     isAi?: SortOrder
     aiModel?: SortOrder
     createdAt?: SortOrder
+    isRefinedPrompt?: SortOrder
     user?: UserOrderByWithRelationInput
     project?: ProjectOrderByWithRelationInput
   }
@@ -6966,6 +6980,7 @@ export namespace Prisma {
     isAi?: BoolFilter<"Chat"> | boolean
     aiModel?: StringFilter<"Chat"> | string
     createdAt?: DateTimeFilter<"Chat"> | Date | string
+    isRefinedPrompt?: BoolFilter<"Chat"> | boolean
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     project?: XOR<ProjectNullableScalarRelationFilter, ProjectWhereInput> | null
   }, "id">
@@ -6978,6 +6993,7 @@ export namespace Prisma {
     isAi?: SortOrder
     aiModel?: SortOrder
     createdAt?: SortOrder
+    isRefinedPrompt?: SortOrder
     _count?: ChatCountOrderByAggregateInput
     _max?: ChatMaxOrderByAggregateInput
     _min?: ChatMinOrderByAggregateInput
@@ -6994,6 +7010,7 @@ export namespace Prisma {
     isAi?: BoolWithAggregatesFilter<"Chat"> | boolean
     aiModel?: StringWithAggregatesFilter<"Chat"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Chat"> | Date | string
+    isRefinedPrompt?: BoolWithAggregatesFilter<"Chat"> | boolean
   }
 
   export type ProjectDataWhereInput = {
@@ -7281,6 +7298,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
     user?: UserCreateNestedOneWithoutChatsInput
     project?: ProjectCreateNestedOneWithoutChatsInput
   }
@@ -7293,6 +7311,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ChatUpdateInput = {
@@ -7300,6 +7319,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneWithoutChatsNestedInput
     project?: ProjectUpdateOneWithoutChatsNestedInput
   }
@@ -7311,6 +7331,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatCreateManyInput = {
@@ -7321,6 +7342,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ChatUpdateManyMutationInput = {
@@ -7328,6 +7350,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatUncheckedUpdateManyInput = {
@@ -7337,6 +7360,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProjectDataCreateInput = {
@@ -7708,6 +7732,7 @@ export namespace Prisma {
     isAi?: SortOrder
     aiModel?: SortOrder
     createdAt?: SortOrder
+    isRefinedPrompt?: SortOrder
   }
 
   export type ChatMaxOrderByAggregateInput = {
@@ -7718,6 +7743,7 @@ export namespace Prisma {
     isAi?: SortOrder
     aiModel?: SortOrder
     createdAt?: SortOrder
+    isRefinedPrompt?: SortOrder
   }
 
   export type ChatMinOrderByAggregateInput = {
@@ -7728,6 +7754,7 @@ export namespace Prisma {
     isAi?: SortOrder
     aiModel?: SortOrder
     createdAt?: SortOrder
+    isRefinedPrompt?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -8467,6 +8494,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
     project?: ProjectCreateNestedOneWithoutChatsInput
   }
 
@@ -8477,6 +8505,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ChatCreateOrConnectWithoutUserInput = {
@@ -8546,6 +8575,7 @@ export namespace Prisma {
     isAi?: BoolFilter<"Chat"> | boolean
     aiModel?: StringFilter<"Chat"> | string
     createdAt?: DateTimeFilter<"Chat"> | Date | string
+    isRefinedPrompt?: BoolFilter<"Chat"> | boolean
   }
 
   export type UserCreateWithoutProjectsInput = {
@@ -8575,6 +8605,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
     user?: UserCreateNestedOneWithoutChatsInput
   }
 
@@ -8585,6 +8616,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ChatCreateOrConnectWithoutProjectInput = {
@@ -9138,6 +9170,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ProjectUpdateWithoutUserInput = {
@@ -9182,6 +9215,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
     project?: ProjectUpdateOneWithoutChatsNestedInput
   }
 
@@ -9191,6 +9225,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatUncheckedUpdateManyWithoutUserInput = {
@@ -9199,6 +9234,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatCreateManyProjectInput = {
@@ -9208,6 +9244,7 @@ export namespace Prisma {
     isAi: boolean
     aiModel: string
     createdAt?: Date | string
+    isRefinedPrompt?: boolean
   }
 
   export type ProjectDataCreateManyProjectInput = {
@@ -9232,6 +9269,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneWithoutChatsNestedInput
   }
 
@@ -9241,6 +9279,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatUncheckedUpdateManyWithoutProjectInput = {
@@ -9249,6 +9288,7 @@ export namespace Prisma {
     isAi?: BoolFieldUpdateOperationsInput | boolean
     aiModel?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isRefinedPrompt?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProjectDataUpdateWithoutProjectInput = {

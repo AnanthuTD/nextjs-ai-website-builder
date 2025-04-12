@@ -44,15 +44,16 @@ type ColorScheme {
 }
 
 model Chat {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String?  @db.ObjectId
-  user      User?    @relation("UserChats", fields: [userId], references: [id])
-  projectId String?  @db.ObjectId
-  project   Project? @relation("ProjectChats", fields: [projectId], references: [id])
-  message   String
-  isAi      Boolean
-  aiModel   String
-  createdAt DateTime @default(now())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String?  @db.ObjectId
+  user            User?    @relation("UserChats", fields: [userId], references: [id])
+  projectId       String?  @db.ObjectId
+  project         Project? @relation("ProjectChats", fields: [projectId], references: [id])
+  message         String
+  isAi            Boolean
+  aiModel         String
+  createdAt       DateTime @default(now())
+  isRefinedPrompt Boolean  @default(false)
 }
 
 model ProjectData {

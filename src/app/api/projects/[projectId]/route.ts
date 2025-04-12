@@ -14,6 +14,8 @@ export async function GET(
 		}
 		return NextResponse.json(project);
 	} catch (error) {
+		console.error(error);
+
 		return NextResponse.json(
 			{ error: "Failed to fetch project" },
 			{ status: 500 }
@@ -33,6 +35,8 @@ export async function PATCH(
 		});
 		return NextResponse.json(project);
 	} catch (error) {
+		console.error(error)
+
 		return NextResponse.json(
 			{ error: "Failed to update project" },
 			{ status: 500 }
@@ -50,6 +54,8 @@ export async function DELETE(
 		});
 		return NextResponse.json({ message: "Project deleted" });
 	} catch (error) {
+		console.error(error);
+
 		return NextResponse.json(
 			{ error: "Failed to delete project" },
 			{ status: 500 }

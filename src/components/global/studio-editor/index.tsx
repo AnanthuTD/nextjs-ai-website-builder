@@ -1,7 +1,6 @@
 "use client";
 
 import StudioEditor from "@grapesjs/studio-sdk/react";
-import AiChatBox from "../ai-tools";
 import { useEffect, useState } from "react";
 import {
 	loadProjectBlocksData,
@@ -10,9 +9,10 @@ import {
 	saveProjectData,
 } from "@/lib/storage";
 import { toast } from "sonner";
-import { SubmitData } from "../dashboard";
 import { sampleTemplates } from "@/lib/templates";
 import { useAuth } from "@clerk/nextjs";
+import { Project } from "@/app/generated/prisma";
+import AiChatBox from "../ai-tools";
 
 interface Content {
 	html: string;
@@ -25,12 +25,18 @@ export interface Block {
 	content: string;
 }
 
-export default function Editor({ data }: { data: SubmitData }) {
-	const { projectId = "" } = data;
+export default function Editor({ data }: { data: Project }) {
+	const { id: projectId = "" } = data;
 	const { userId: clerkId } = useAuth();
 	const [blocks, setBlocks] = useState<Block[]>([]);
 	const [projectDataId, setProjectDataId] = useState<string | null>(null);
+	const [editorInstance, setEditorInstance] = useState<any>(null);
+	const [initialContent, setInitialContent] = useState<Content>({
+		html: "",
+		css: "",
+	});
 
+	// Load stylesheet
 	useEffect(() => {
 		const link = document.createElement("link");
 		link.rel = "stylesheet";
@@ -42,9 +48,23 @@ export default function Editor({ data }: { data: SubmitData }) {
 		};
 	}, []);
 
+	// Ensure user exists
 	useEffect(() => {
-		// Load blocks on mount
-		if (clerkId && projectDataId) {
+		if (clerkId) {
+			fetch("/api/create-user", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ clerkId }),
+			}).catch((error) => {
+				console.error("Error ensuring user:", error);
+				toast.error("Failed to initialize user");
+			});
+		}
+	}, [clerkId]);
+
+	// Load blocks
+	useEffect(() => {
+		if (projectDataId) {
 			loadProjectBlocksData(projectDataId)
 				.then((loadedBlocks) => {
 					setBlocks(loadedBlocks);
@@ -54,50 +74,56 @@ export default function Editor({ data }: { data: SubmitData }) {
 					toast.error("Failed to load blocks");
 				});
 		}
-	}, [projectDataId, clerkId]);
+	}, [projectDataId]);
+
+	// Load initial content
+	useEffect(() => {
+		if (editorInstance) {
+			getPageContent(editorInstance).then((content) => {
+				setInitialContent(content);
+			});
+		}
+	}, [editorInstance]);
 
 	const updatePage = (editor: any, content: Content) => {
-		console.log("Content update: ", content);
-		if (editor) {
-			console.log("editor instance found");
-			try {
-				editor.setComponents(content.html);
-				const css = editor.Css;
-				css.clear();
-				css.addRules(content.css);
-			} catch (error) {
-				console.error("Error in use effect: ", error);
-			}
-		} else {
+		if (!editor) {
 			toast.error("Editor instance not found!");
 			console.error("Editor instance not found!");
+			return;
+		}
+		try {
+			editor.setComponents(content.html);
+			const css = editor.Css;
+			css.clear();
+			css.addRules(content.css);
+			setInitialContent(content); // Update state
+		} catch (error) {
+			console.error("Error updating page:", error);
+			toast.error("Failed to update page");
 		}
 	};
 
 	const getPageContent = async (editorInstance: any) => {
-		if (!clerkId) {
-			console.warn("No clerkId, using default content");
-			return data.template && sampleTemplates[data.template]
-				? {
-						html: sampleTemplates[data.template].html || "",
-						css: sampleTemplates[data.template].css || "",
-				  }
-				: { html: "", css: "" };
+		if (!editorInstance) {
+			return { html: "", css: "" };
 		}
+
+		const html = editorInstance.getHtml() || ""
+		const css = editorInstance.getCss() || ""
+
+		console.log("getPageContent: ", html, css)
 
 		try {
 			const project = await loadProjectData(projectId);
-			if (!project) {
-				return data.template && sampleTemplates[data.template]
-					? {
-							html: sampleTemplates[data.template].html || "",
-							css: sampleTemplates[data.template].css || "",
-					  }
-					: { html: "", css: "" };
+			if (!project && data.template && sampleTemplates[data.template]) {
+				return {
+					html: sampleTemplates[data.template].html || "",
+					css: sampleTemplates[data.template].css || "",
+				};
 			}
 			return {
-				html: editorInstance?.getHtml() || "",
-				css: editorInstance?.getCss() || "",
+				html,
+				css,
 			};
 		} catch (error) {
 			console.error("Error in getPageContent:", error);
@@ -115,17 +141,16 @@ export default function Editor({ data }: { data: SubmitData }) {
 			toast.error("No editor instance defined!");
 			return;
 		}
-		if (!clerkId) {
-			toast.error("User not authenticated!");
-			return;
-		}
 		if (!projectDataId) {
 			toast.error("No project data selected!");
 			return;
 		}
+		if (!clerkId) {
+			toast.error("User not authenticated!");
+			return;
+		}
 
 		const { Blocks } = editor;
-
 		const blockMedia =
 			'<svg viewBox="0 0 24 24"><path d="M19,5H22V7H19V10H17V7H14V5H17V2H19V5M17,19V13H19V21H3V5H11V7H5V19H17Z" /></svg>';
 		const newCategory = {
@@ -146,25 +171,74 @@ export default function Editor({ data }: { data: SubmitData }) {
 		try {
 			await saveProjectBlocksData(projectDataId, blocks);
 			setBlocks(blocks);
+			toast.success("Blocks saved successfully");
 		} catch (error) {
 			console.error("Error saving blocks:", error);
 			toast.error("Failed to save blocks");
 		}
 	};
 
+	// Add Publish button
+	useEffect(() => {
+		if (editorInstance && projectId && clerkId) {
+			editorInstance.Panels.addButton("options", {
+				id: "publish",
+				className: "fa fa-upload",
+				command: "publish-project",
+				attributes: { title: "Publish Project" },
+			});
+
+			editorInstance.Commands.add("publish-project", {
+				run: async (editor: any, sender: any) => {
+					sender?.set("active", false);
+					toast.info("Publishing project...");
+
+					try {
+						const content = {
+							html: editor.getHtml(),
+							css: editor.getCss(),
+						};
+
+						const response = await fetch("/api/publish-project", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ projectId, clerkId, content }),
+						});
+
+						if (!response.ok) {
+							const errorData = await response.json();
+							throw new Error(errorData.error || "Failed to publish");
+						}
+
+						const result = await response.json();
+						toast.success(result.message);
+					} catch (error) {
+						console.error("Publish error:", error);
+						toast.error(
+							error instanceof Error ? error.message : "Failed to publish"
+						);
+					}
+				},
+			});
+		}
+	}, [editorInstance, projectId, clerkId]);
+
 	return (
 		<StudioEditor
 			className="h-screen"
 			options={{
-				licenseKey: process.env.VITE_GRAPESJS_PUBLIC_KEY || "",
+				licenseKey: process.env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY || "",
+				onEditor: (editor: any) => setEditorInstance(editor),
 				storage: {
 					type: "self",
 					autosaveChanges: 5,
 					onSave: async ({ project }) => {
+						if (!clerkId) {
+							toast.error("User not authenticated!");
+							return;
+						}
 						try {
-							if (!clerkId) throw new Error("User not authenticated");
-							await saveProjectData(projectId, project);
-							console.log("Project saved", { project });
+							await saveProjectData(projectId, project, clerkId);
 							toast.success("Project saved successfully!");
 						} catch (error) {
 							console.error("Error saving project:", error);
@@ -173,14 +247,12 @@ export default function Editor({ data }: { data: SubmitData }) {
 					},
 					onLoad: async () => {
 						try {
-							if (!clerkId) throw new Error("User not authenticated");
 							const { project, projectDataId } = await loadProjectData(
 								projectId
 							);
 							if (projectDataId) {
 								setProjectDataId(projectDataId);
 							}
-							console.log("Project loaded", { project });
 							return {
 								project: project || {
 									pages: [{ name: "Home", component: "<h1>New project</h1>" }],
@@ -200,7 +272,6 @@ export default function Editor({ data }: { data: SubmitData }) {
 				plugins: [
 					(editorInstance) => {
 						editorInstance.onReady(() => {
-							console.log("editor instance loaded");
 							updateAiGeneratedBlock(editorInstance, blocks);
 						});
 					},
@@ -260,23 +331,24 @@ export default function Editor({ data }: { data: SubmitData }) {
 											children: [
 												{
 													type: "custom",
-													component: async ({ editor }) => {
-														return (
-															<AiChatBox
-																initialPrompt={data?.prompt ?? ""}
-																language={data.language ?? ""}
-																colors={data.colors ?? null}
-																onUpdateContent={(content) =>
-																	updatePage(editor, content)
-																}
-																initialContent={await getPageContent(editor)}
-																updateAiGeneratedBlock={(blocks) =>
-																	updateAiGeneratedBlock(editor, blocks)
-																}
-																firstTime={!(await loadProjectData(projectId))}
-															/>
-														);
-													},
+													component: ({ editor }: { editor: any }) => (
+														<AiChatBox
+															initialPrompt={data?.prompt ?? ""}
+															language={data.language ?? ""}
+															colors={data.colors ?? null}
+															onUpdateContent={(content) =>
+																updatePage(editor, content)
+															}
+															initialContent={initialContent}
+															updateAiGeneratedBlock={(blocks) =>
+																updateAiGeneratedBlock(editor, blocks)
+															}
+															firstTime={async () =>
+																!(await loadProjectData(projectId))
+															}
+															projectId={projectId}
+														/>
+													),
 													style: { height: "100%", display: "flex" },
 												},
 											],
