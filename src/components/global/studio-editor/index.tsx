@@ -238,7 +238,7 @@ export default function Editor({ data }: { data: Project }) {
 							return;
 						}
 						try {
-							await saveProjectData(projectId, project, clerkId);
+							await saveProjectData(projectId, project);
 							toast.success("Project saved successfully!");
 						} catch (error) {
 							console.error("Error saving project:", error);
