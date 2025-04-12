@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/app/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String    @unique // Clerk user ID
+  projects  Project[] @relation("UserProjects")
+  chats     Chat[]    @relation("UserChats")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id                    String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String        @db.ObjectId
+  user                  User          @relation("UserProjects", fields: [userId], references: [id])
+  name                  String
+  prompt                String?
+  language              String?
+  template              String?
+  colors                ColorScheme?
+  chats                 Chat[]        @relation("ProjectChats")
+  projectData           ProjectData[] @relation("ProjectData")
+  selectedProjectDataId String?       @unique @db.ObjectId
+  selectedProjectData   ProjectData?  @relation("SelectedProjectData", fields: [selectedProjectDataId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+}
+
+type ColorScheme {
+  primaryColor    String
+  secondaryColor  String
+  backgroundColor String
+  textColor       String
+  neutralColor    String
+  accentColor     String
+}
+
+model Chat {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  user      User?    @relation("UserChats", fields: [userId], references: [id])
+  projectId String?  @db.ObjectId
+  project   Project? @relation("ProjectChats", fields: [projectId], references: [id])
+  message   String
+  isAi      Boolean
+  aiModel   String
+  createdAt DateTime @default(now())
+}
+
+model ProjectData {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId  String   @db.ObjectId
+  project    Project  @relation("ProjectData", fields: [projectId], references: [id])
+  data       Json     @default("{}")
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  selectedBy Project? @relation("SelectedProjectData")
+  blocks     Block[]  @relation("ProjectBlocks")
+}
+
+model Block {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  projectDataId String      @db.ObjectId
+  projectData   ProjectData @relation("ProjectBlocks", fields: [projectDataId], references: [id])
+  blockId       String
+  label         String
+  content       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([projectDataId])
+}
