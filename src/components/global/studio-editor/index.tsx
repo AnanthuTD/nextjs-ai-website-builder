@@ -179,7 +179,7 @@ export default function Editor({ data }: { data: Project }) {
 		<StudioEditor
 			className="h-screen"
 			options={{
-				licenseKey: process.env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY || "",
+				licenseKey: process.env.NEXT_GRAPESJS_PUBLIC_KEY || "",
 				onEditor: (editor) => setEditorInstance(editor),
 				storage: {
 					type: "self",
