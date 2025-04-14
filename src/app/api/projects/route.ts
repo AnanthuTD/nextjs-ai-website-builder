@@ -22,7 +22,7 @@ export async function GET() {
 		});
 		return NextResponse.json(projects);
 	} catch (error) {
-		console.error(error);
+		// console.error(error);
 		return NextResponse.json(
 			{ error: "Failed to fetch projects" },
 			{ status: 500 }

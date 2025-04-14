@@ -159,6 +159,14 @@ exports.Prisma.BlockScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PublishedSiteScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  subdomain: 'subdomain',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -175,7 +183,8 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   Chat: 'Chat',
   ProjectData: 'ProjectData',
-  Block: 'Block'
+  Block: 'Block',
+  PublishedSite: 'PublishedSite'
 };
 
 /**

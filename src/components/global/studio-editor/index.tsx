@@ -13,6 +13,7 @@ import { sampleTemplates } from "@/lib/templates";
 import { useAuth } from "@clerk/nextjs";
 import { Project } from "@/app/generated/prisma";
 import AiChatBox from "../ai-tools";
+import PublishComponent from "../publish-component";
 
 interface Content {
 	html: string;
@@ -108,10 +109,10 @@ export default function Editor({ data }: { data: Project }) {
 			return { html: "", css: "" };
 		}
 
-		const html = editorInstance.getHtml() || ""
-		const css = editorInstance.getCss() || ""
+		const html = editorInstance.getHtml() || "";
+		const css = editorInstance.getCss() || "";
 
-		console.log("getPageContent: ", html, css)
+		console.log("getPageContent: ", html, css);
 
 		try {
 			const project = await loadProjectData(projectId);
@@ -145,10 +146,6 @@ export default function Editor({ data }: { data: Project }) {
 			toast.error("No project data selected!");
 			return;
 		}
-		if (!clerkId) {
-			toast.error("User not authenticated!");
-			return;
-		}
 
 		const { Blocks } = editor;
 		const blockMedia =
@@ -178,65 +175,16 @@ export default function Editor({ data }: { data: Project }) {
 		}
 	};
 
-	// Add Publish button
-	useEffect(() => {
-		if (editorInstance && projectId && clerkId) {
-			editorInstance.Panels.addButton("options", {
-				id: "publish",
-				className: "fa fa-upload",
-				command: "publish-project",
-				attributes: { title: "Publish Project" },
-			});
-
-			editorInstance.Commands.add("publish-project", {
-				run: async (editor: any, sender: any) => {
-					sender?.set("active", false);
-					toast.info("Publishing project...");
-
-					try {
-						const content = {
-							html: editor.getHtml(),
-							css: editor.getCss(),
-						};
-
-						const response = await fetch("/api/publish-project", {
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({ projectId, clerkId, content }),
-						});
-
-						if (!response.ok) {
-							const errorData = await response.json();
-							throw new Error(errorData.error || "Failed to publish");
-						}
-
-						const result = await response.json();
-						toast.success(result.message);
-					} catch (error) {
-						console.error("Publish error:", error);
-						toast.error(
-							error instanceof Error ? error.message : "Failed to publish"
-						);
-					}
-				},
-			});
-		}
-	}, [editorInstance, projectId, clerkId]);
-
 	return (
 		<StudioEditor
 			className="h-screen"
 			options={{
 				licenseKey: process.env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY || "",
-				onEditor: (editor: any) => setEditorInstance(editor),
+				onEditor: (editor) => setEditorInstance(editor),
 				storage: {
 					type: "self",
 					autosaveChanges: 5,
 					onSave: async ({ project }) => {
-						if (!clerkId) {
-							toast.error("User not authenticated!");
-							return;
-						}
 						try {
 							await saveProjectData(projectId, project);
 							toast.success("Project saved successfully!");
@@ -255,7 +203,7 @@ export default function Editor({ data }: { data: Project }) {
 							}
 							return {
 								project: project || {
-									pages: [{ name: "Home", component: "<h1>New project</h1>" }],
+									pages: [{ name: "Landing", component: "<h1>New project</h1>", id: "index" }],
 								},
 							};
 						} catch (error) {
@@ -272,7 +220,7 @@ export default function Editor({ data }: { data: Project }) {
 				plugins: [
 					(editorInstance) => {
 						editorInstance.onReady(() => {
-							updateAiGeneratedBlock(editorInstance, blocks);
+							// updateAiGeneratedBlock(editorInstance, blocks);
 						});
 					},
 				],
@@ -352,6 +300,26 @@ export default function Editor({ data }: { data: Project }) {
 													style: { height: "100%", display: "flex" },
 												},
 											],
+										},
+										{
+											id: "publish",
+											label: "Publish",
+											children: {
+												type: "column",
+												style: { height: "100%" },
+												children: [
+													{
+														type: "custom",
+														component: ({ editor }: { editor: any }) => (
+															<PublishComponent
+																editor={editor}
+																projectId={projectId}
+															/>
+														),
+														style: { height: "100%" },
+													},
+												],
+											},
 										},
 										{
 											id: "styles",

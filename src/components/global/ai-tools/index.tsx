@@ -330,7 +330,7 @@ const AiChatBox: React.FC<Props> = ({
 					<ChatFlat
 						key={chat.id}
 						chat={chat}
-						own={chat.userId === clerkId}
+						own={!!chat?.userId}
 						onGenerateCode={generateCode}
 						isGenerating={
 							isGenerating &&

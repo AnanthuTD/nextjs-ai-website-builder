@@ -43,6 +43,11 @@ export type ProjectData = $Result.DefaultSelection<Prisma.$ProjectDataPayload>
  * 
  */
 export type Block = $Result.DefaultSelection<Prisma.$BlockPayload>
+/**
+ * Model PublishedSite
+ * 
+ */
+export type PublishedSite = $Result.DefaultSelection<Prisma.$PublishedSitePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -185,6 +190,16 @@ export class PrismaClient<
     * ```
     */
   get block(): Prisma.BlockDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.publishedSite`: Exposes CRUD operations for the **PublishedSite** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PublishedSites
+    * const publishedSites = await prisma.publishedSite.findMany()
+    * ```
+    */
+  get publishedSite(): Prisma.PublishedSiteDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -629,7 +644,8 @@ export namespace Prisma {
     Project: 'Project',
     Chat: 'Chat',
     ProjectData: 'ProjectData',
-    Block: 'Block'
+    Block: 'Block',
+    PublishedSite: 'PublishedSite'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -648,7 +664,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "project" | "chat" | "projectData" | "block"
+      modelProps: "user" | "project" | "chat" | "projectData" | "block" | "publishedSite"
       txIsolationLevel: never
     }
     model: {
@@ -1022,6 +1038,80 @@ export namespace Prisma {
           }
         }
       }
+      PublishedSite: {
+        payload: Prisma.$PublishedSitePayload<ExtArgs>
+        fields: Prisma.PublishedSiteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PublishedSiteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PublishedSiteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          findFirst: {
+            args: Prisma.PublishedSiteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PublishedSiteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          findMany: {
+            args: Prisma.PublishedSiteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>[]
+          }
+          create: {
+            args: Prisma.PublishedSiteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          createMany: {
+            args: Prisma.PublishedSiteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PublishedSiteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          update: {
+            args: Prisma.PublishedSiteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          deleteMany: {
+            args: Prisma.PublishedSiteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PublishedSiteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PublishedSiteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PublishedSitePayload>
+          }
+          aggregate: {
+            args: Prisma.PublishedSiteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePublishedSite>
+          }
+          groupBy: {
+            args: Prisma.PublishedSiteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PublishedSiteGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.PublishedSiteFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.PublishedSiteAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.PublishedSiteCountArgs<ExtArgs>
+            result: $Utils.Optional<PublishedSiteCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1098,6 +1188,7 @@ export namespace Prisma {
     chat?: ChatOmit
     projectData?: ProjectDataOmit
     block?: BlockOmit
+    publishedSite?: PublishedSiteOmit
   }
 
   /* Types for Logging */
@@ -6639,6 +6730,938 @@ export namespace Prisma {
 
 
   /**
+   * Model PublishedSite
+   */
+
+  export type AggregatePublishedSite = {
+    _count: PublishedSiteCountAggregateOutputType | null
+    _min: PublishedSiteMinAggregateOutputType | null
+    _max: PublishedSiteMaxAggregateOutputType | null
+  }
+
+  export type PublishedSiteMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    subdomain: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PublishedSiteMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    subdomain: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PublishedSiteCountAggregateOutputType = {
+    id: number
+    projectId: number
+    subdomain: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PublishedSiteMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    subdomain?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PublishedSiteMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    subdomain?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PublishedSiteCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    subdomain?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PublishedSiteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PublishedSite to aggregate.
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PublishedSites to fetch.
+     */
+    orderBy?: PublishedSiteOrderByWithRelationInput | PublishedSiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PublishedSiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PublishedSites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PublishedSites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PublishedSites
+    **/
+    _count?: true | PublishedSiteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PublishedSiteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PublishedSiteMaxAggregateInputType
+  }
+
+  export type GetPublishedSiteAggregateType<T extends PublishedSiteAggregateArgs> = {
+        [P in keyof T & keyof AggregatePublishedSite]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePublishedSite[P]>
+      : GetScalarType<T[P], AggregatePublishedSite[P]>
+  }
+
+
+
+
+  export type PublishedSiteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PublishedSiteWhereInput
+    orderBy?: PublishedSiteOrderByWithAggregationInput | PublishedSiteOrderByWithAggregationInput[]
+    by: PublishedSiteScalarFieldEnum[] | PublishedSiteScalarFieldEnum
+    having?: PublishedSiteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PublishedSiteCountAggregateInputType | true
+    _min?: PublishedSiteMinAggregateInputType
+    _max?: PublishedSiteMaxAggregateInputType
+  }
+
+  export type PublishedSiteGroupByOutputType = {
+    id: string
+    projectId: string
+    subdomain: string
+    createdAt: Date
+    updatedAt: Date
+    _count: PublishedSiteCountAggregateOutputType | null
+    _min: PublishedSiteMinAggregateOutputType | null
+    _max: PublishedSiteMaxAggregateOutputType | null
+  }
+
+  type GetPublishedSiteGroupByPayload<T extends PublishedSiteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PublishedSiteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PublishedSiteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PublishedSiteGroupByOutputType[P]>
+            : GetScalarType<T[P], PublishedSiteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PublishedSiteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    subdomain?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["publishedSite"]>
+
+
+
+  export type PublishedSiteSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    subdomain?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PublishedSiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "subdomain" | "createdAt" | "updatedAt", ExtArgs["result"]["publishedSite"]>
+
+  export type $PublishedSitePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PublishedSite"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      subdomain: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["publishedSite"]>
+    composites: {}
+  }
+
+  type PublishedSiteGetPayload<S extends boolean | null | undefined | PublishedSiteDefaultArgs> = $Result.GetResult<Prisma.$PublishedSitePayload, S>
+
+  type PublishedSiteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PublishedSiteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PublishedSiteCountAggregateInputType | true
+    }
+
+  export interface PublishedSiteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PublishedSite'], meta: { name: 'PublishedSite' } }
+    /**
+     * Find zero or one PublishedSite that matches the filter.
+     * @param {PublishedSiteFindUniqueArgs} args - Arguments to find a PublishedSite
+     * @example
+     * // Get one PublishedSite
+     * const publishedSite = await prisma.publishedSite.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PublishedSiteFindUniqueArgs>(args: SelectSubset<T, PublishedSiteFindUniqueArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PublishedSite that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PublishedSiteFindUniqueOrThrowArgs} args - Arguments to find a PublishedSite
+     * @example
+     * // Get one PublishedSite
+     * const publishedSite = await prisma.publishedSite.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PublishedSiteFindUniqueOrThrowArgs>(args: SelectSubset<T, PublishedSiteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PublishedSite that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteFindFirstArgs} args - Arguments to find a PublishedSite
+     * @example
+     * // Get one PublishedSite
+     * const publishedSite = await prisma.publishedSite.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PublishedSiteFindFirstArgs>(args?: SelectSubset<T, PublishedSiteFindFirstArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PublishedSite that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteFindFirstOrThrowArgs} args - Arguments to find a PublishedSite
+     * @example
+     * // Get one PublishedSite
+     * const publishedSite = await prisma.publishedSite.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PublishedSiteFindFirstOrThrowArgs>(args?: SelectSubset<T, PublishedSiteFindFirstOrThrowArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PublishedSites that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PublishedSites
+     * const publishedSites = await prisma.publishedSite.findMany()
+     * 
+     * // Get first 10 PublishedSites
+     * const publishedSites = await prisma.publishedSite.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const publishedSiteWithIdOnly = await prisma.publishedSite.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PublishedSiteFindManyArgs>(args?: SelectSubset<T, PublishedSiteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PublishedSite.
+     * @param {PublishedSiteCreateArgs} args - Arguments to create a PublishedSite.
+     * @example
+     * // Create one PublishedSite
+     * const PublishedSite = await prisma.publishedSite.create({
+     *   data: {
+     *     // ... data to create a PublishedSite
+     *   }
+     * })
+     * 
+     */
+    create<T extends PublishedSiteCreateArgs>(args: SelectSubset<T, PublishedSiteCreateArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PublishedSites.
+     * @param {PublishedSiteCreateManyArgs} args - Arguments to create many PublishedSites.
+     * @example
+     * // Create many PublishedSites
+     * const publishedSite = await prisma.publishedSite.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PublishedSiteCreateManyArgs>(args?: SelectSubset<T, PublishedSiteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PublishedSite.
+     * @param {PublishedSiteDeleteArgs} args - Arguments to delete one PublishedSite.
+     * @example
+     * // Delete one PublishedSite
+     * const PublishedSite = await prisma.publishedSite.delete({
+     *   where: {
+     *     // ... filter to delete one PublishedSite
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PublishedSiteDeleteArgs>(args: SelectSubset<T, PublishedSiteDeleteArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PublishedSite.
+     * @param {PublishedSiteUpdateArgs} args - Arguments to update one PublishedSite.
+     * @example
+     * // Update one PublishedSite
+     * const publishedSite = await prisma.publishedSite.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PublishedSiteUpdateArgs>(args: SelectSubset<T, PublishedSiteUpdateArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PublishedSites.
+     * @param {PublishedSiteDeleteManyArgs} args - Arguments to filter PublishedSites to delete.
+     * @example
+     * // Delete a few PublishedSites
+     * const { count } = await prisma.publishedSite.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PublishedSiteDeleteManyArgs>(args?: SelectSubset<T, PublishedSiteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PublishedSites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PublishedSites
+     * const publishedSite = await prisma.publishedSite.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PublishedSiteUpdateManyArgs>(args: SelectSubset<T, PublishedSiteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PublishedSite.
+     * @param {PublishedSiteUpsertArgs} args - Arguments to update or create a PublishedSite.
+     * @example
+     * // Update or create a PublishedSite
+     * const publishedSite = await prisma.publishedSite.upsert({
+     *   create: {
+     *     // ... data to create a PublishedSite
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PublishedSite we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PublishedSiteUpsertArgs>(args: SelectSubset<T, PublishedSiteUpsertArgs<ExtArgs>>): Prisma__PublishedSiteClient<$Result.GetResult<Prisma.$PublishedSitePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PublishedSites that matches the filter.
+     * @param {PublishedSiteFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const publishedSite = await prisma.publishedSite.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: PublishedSiteFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a PublishedSite.
+     * @param {PublishedSiteAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const publishedSite = await prisma.publishedSite.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: PublishedSiteAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of PublishedSites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteCountArgs} args - Arguments to filter PublishedSites to count.
+     * @example
+     * // Count the number of PublishedSites
+     * const count = await prisma.publishedSite.count({
+     *   where: {
+     *     // ... the filter for the PublishedSites we want to count
+     *   }
+     * })
+    **/
+    count<T extends PublishedSiteCountArgs>(
+      args?: Subset<T, PublishedSiteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PublishedSiteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PublishedSite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PublishedSiteAggregateArgs>(args: Subset<T, PublishedSiteAggregateArgs>): Prisma.PrismaPromise<GetPublishedSiteAggregateType<T>>
+
+    /**
+     * Group by PublishedSite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublishedSiteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PublishedSiteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PublishedSiteGroupByArgs['orderBy'] }
+        : { orderBy?: PublishedSiteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PublishedSiteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPublishedSiteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PublishedSite model
+   */
+  readonly fields: PublishedSiteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PublishedSite.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PublishedSiteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PublishedSite model
+   */
+  interface PublishedSiteFieldRefs {
+    readonly id: FieldRef<"PublishedSite", 'String'>
+    readonly projectId: FieldRef<"PublishedSite", 'String'>
+    readonly subdomain: FieldRef<"PublishedSite", 'String'>
+    readonly createdAt: FieldRef<"PublishedSite", 'DateTime'>
+    readonly updatedAt: FieldRef<"PublishedSite", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PublishedSite findUnique
+   */
+  export type PublishedSiteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter, which PublishedSite to fetch.
+     */
+    where: PublishedSiteWhereUniqueInput
+  }
+
+  /**
+   * PublishedSite findUniqueOrThrow
+   */
+  export type PublishedSiteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter, which PublishedSite to fetch.
+     */
+    where: PublishedSiteWhereUniqueInput
+  }
+
+  /**
+   * PublishedSite findFirst
+   */
+  export type PublishedSiteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter, which PublishedSite to fetch.
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PublishedSites to fetch.
+     */
+    orderBy?: PublishedSiteOrderByWithRelationInput | PublishedSiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PublishedSites.
+     */
+    cursor?: PublishedSiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PublishedSites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PublishedSites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PublishedSites.
+     */
+    distinct?: PublishedSiteScalarFieldEnum | PublishedSiteScalarFieldEnum[]
+  }
+
+  /**
+   * PublishedSite findFirstOrThrow
+   */
+  export type PublishedSiteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter, which PublishedSite to fetch.
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PublishedSites to fetch.
+     */
+    orderBy?: PublishedSiteOrderByWithRelationInput | PublishedSiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PublishedSites.
+     */
+    cursor?: PublishedSiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PublishedSites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PublishedSites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PublishedSites.
+     */
+    distinct?: PublishedSiteScalarFieldEnum | PublishedSiteScalarFieldEnum[]
+  }
+
+  /**
+   * PublishedSite findMany
+   */
+  export type PublishedSiteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter, which PublishedSites to fetch.
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PublishedSites to fetch.
+     */
+    orderBy?: PublishedSiteOrderByWithRelationInput | PublishedSiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PublishedSites.
+     */
+    cursor?: PublishedSiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PublishedSites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PublishedSites.
+     */
+    skip?: number
+    distinct?: PublishedSiteScalarFieldEnum | PublishedSiteScalarFieldEnum[]
+  }
+
+  /**
+   * PublishedSite create
+   */
+  export type PublishedSiteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PublishedSite.
+     */
+    data: XOR<PublishedSiteCreateInput, PublishedSiteUncheckedCreateInput>
+  }
+
+  /**
+   * PublishedSite createMany
+   */
+  export type PublishedSiteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PublishedSites.
+     */
+    data: PublishedSiteCreateManyInput | PublishedSiteCreateManyInput[]
+  }
+
+  /**
+   * PublishedSite update
+   */
+  export type PublishedSiteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PublishedSite.
+     */
+    data: XOR<PublishedSiteUpdateInput, PublishedSiteUncheckedUpdateInput>
+    /**
+     * Choose, which PublishedSite to update.
+     */
+    where: PublishedSiteWhereUniqueInput
+  }
+
+  /**
+   * PublishedSite updateMany
+   */
+  export type PublishedSiteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PublishedSites.
+     */
+    data: XOR<PublishedSiteUpdateManyMutationInput, PublishedSiteUncheckedUpdateManyInput>
+    /**
+     * Filter which PublishedSites to update
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * Limit how many PublishedSites to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PublishedSite upsert
+   */
+  export type PublishedSiteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PublishedSite to update in case it exists.
+     */
+    where: PublishedSiteWhereUniqueInput
+    /**
+     * In case the PublishedSite found by the `where` argument doesn't exist, create a new PublishedSite with this data.
+     */
+    create: XOR<PublishedSiteCreateInput, PublishedSiteUncheckedCreateInput>
+    /**
+     * In case the PublishedSite was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PublishedSiteUpdateInput, PublishedSiteUncheckedUpdateInput>
+  }
+
+  /**
+   * PublishedSite delete
+   */
+  export type PublishedSiteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+    /**
+     * Filter which PublishedSite to delete.
+     */
+    where: PublishedSiteWhereUniqueInput
+  }
+
+  /**
+   * PublishedSite deleteMany
+   */
+  export type PublishedSiteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PublishedSites to delete
+     */
+    where?: PublishedSiteWhereInput
+    /**
+     * Limit how many PublishedSites to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PublishedSite findRaw
+   */
+  export type PublishedSiteFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * PublishedSite aggregateRaw
+   */
+  export type PublishedSiteAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * PublishedSite without action
+   */
+  export type PublishedSiteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PublishedSite
+     */
+    select?: PublishedSiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PublishedSite
+     */
+    omit?: PublishedSiteOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -6704,6 +7727,17 @@ export namespace Prisma {
   };
 
   export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
+
+
+  export const PublishedSiteScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    subdomain: 'subdomain',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PublishedSiteScalarFieldEnum = (typeof PublishedSiteScalarFieldEnum)[keyof typeof PublishedSiteScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -7146,6 +8180,58 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Block"> | Date | string
   }
 
+  export type PublishedSiteWhereInput = {
+    AND?: PublishedSiteWhereInput | PublishedSiteWhereInput[]
+    OR?: PublishedSiteWhereInput[]
+    NOT?: PublishedSiteWhereInput | PublishedSiteWhereInput[]
+    id?: StringFilter<"PublishedSite"> | string
+    projectId?: StringFilter<"PublishedSite"> | string
+    subdomain?: StringFilter<"PublishedSite"> | string
+    createdAt?: DateTimeFilter<"PublishedSite"> | Date | string
+    updatedAt?: DateTimeFilter<"PublishedSite"> | Date | string
+  }
+
+  export type PublishedSiteOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    subdomain?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PublishedSiteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    projectId?: string
+    subdomain?: string
+    AND?: PublishedSiteWhereInput | PublishedSiteWhereInput[]
+    OR?: PublishedSiteWhereInput[]
+    NOT?: PublishedSiteWhereInput | PublishedSiteWhereInput[]
+    createdAt?: DateTimeFilter<"PublishedSite"> | Date | string
+    updatedAt?: DateTimeFilter<"PublishedSite"> | Date | string
+  }, "id" | "projectId" | "subdomain">
+
+  export type PublishedSiteOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    subdomain?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PublishedSiteCountOrderByAggregateInput
+    _max?: PublishedSiteMaxOrderByAggregateInput
+    _min?: PublishedSiteMinOrderByAggregateInput
+  }
+
+  export type PublishedSiteScalarWhereWithAggregatesInput = {
+    AND?: PublishedSiteScalarWhereWithAggregatesInput | PublishedSiteScalarWhereWithAggregatesInput[]
+    OR?: PublishedSiteScalarWhereWithAggregatesInput[]
+    NOT?: PublishedSiteScalarWhereWithAggregatesInput | PublishedSiteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PublishedSite"> | string
+    projectId?: StringWithAggregatesFilter<"PublishedSite"> | string
+    subdomain?: StringWithAggregatesFilter<"PublishedSite"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"PublishedSite"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PublishedSite"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     clerkId: string
@@ -7490,6 +8576,58 @@ export namespace Prisma {
     blockId?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublishedSiteCreateInput = {
+    id?: string
+    projectId: string
+    subdomain: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PublishedSiteUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    subdomain: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PublishedSiteUpdateInput = {
+    projectId?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublishedSiteUncheckedUpdateInput = {
+    projectId?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublishedSiteCreateManyInput = {
+    id?: string
+    projectId: string
+    subdomain: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PublishedSiteUpdateManyMutationInput = {
+    projectId?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublishedSiteUncheckedUpdateManyInput = {
+    projectId?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7896,6 +9034,30 @@ export namespace Prisma {
     blockId?: SortOrder
     label?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PublishedSiteCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    subdomain?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PublishedSiteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    subdomain?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PublishedSiteMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    subdomain?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

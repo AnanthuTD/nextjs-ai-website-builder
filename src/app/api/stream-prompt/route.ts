@@ -2,10 +2,11 @@ import { NextRequest } from "next/server";
 import { streamRefinedPrompt } from "@/services/streamRefinedPrompt";
 import { ChatMessage, WebContent } from "@/services/streamRefinedPrompt";
 import prisma from "@/lib/prisma";
+import { getAuthenticatedUserId } from "@/lib/clerk-auth";
 
 export async function POST(request: NextRequest) {
 	try {
-		const { userPrompt, chatHistory, content, clerkId, projectId } =
+		const { userPrompt, chatHistory, content, projectId } =
 			await request.json();
 
 		if (!userPrompt || typeof userPrompt !== "string") {
@@ -14,6 +15,8 @@ export async function POST(request: NextRequest) {
 				headers: { "Content-Type": "application/json" },
 			});
 		}
+
+		const clerkId = await getAuthenticatedUserId()
 		if (!clerkId) {
 			return new Response(JSON.stringify({ error: "clerkId is required" }), {
 				status: 401,
@@ -29,6 +32,8 @@ export async function POST(request: NextRequest) {
 				headers: { "Content-Type": "application/json" },
 			});
 		}
+
+		console.log("ProjectId in stream prompt: ", projectId)
 
 		// Save user message to Chat
 		if (projectId) {

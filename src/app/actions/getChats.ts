@@ -12,7 +12,7 @@ export const getChatsAction = async ({ projectId }: { projectId: string }) => {
 
 	const chats = await prisma.chat.findMany({
 		where: { projectId },
-		orderBy: { createdAt: "desc" },
+		orderBy: { createdAt: "asc" },
 	});
 
 	return chats;

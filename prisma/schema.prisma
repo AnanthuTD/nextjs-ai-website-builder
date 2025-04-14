@@ -80,3 +80,11 @@ model Block {
 
   @@index([projectDataId])
 }
+
+model PublishedSite {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String   @unique
+  subdomain String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
