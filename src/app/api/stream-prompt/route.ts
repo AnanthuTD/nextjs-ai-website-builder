@@ -80,7 +80,6 @@ export async function POST(request: NextRequest) {
 					if (projectId && fullText) {
 						await prisma.chat.create({
 							data: {
-								userId: user.id,
 								projectId,
 								message: fullText,
 								isAi: true,
