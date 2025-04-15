@@ -6,7 +6,7 @@ import React, { ReactNode } from "react";
 
 const links = [
 	{ href: "/dashboard", label: "Dashboard" },
-	{ href: "/editor", label: "Settings" },
+	// { href: "/editor", label: "Settings" },
 ];
 
 function Layout({ children }: { children: ReactNode }) {
@@ -18,8 +18,8 @@ function Layout({ children }: { children: ReactNode }) {
 						src="/logo.png"
 						alt="Website Builder Logo"
 						className="mr-2"
-						height={80}
-						width={120}
+						height={30}
+						width={80}
 					/>
 				</Link>
 

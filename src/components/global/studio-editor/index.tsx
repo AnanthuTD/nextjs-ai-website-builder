@@ -245,7 +245,7 @@ export default function Editor({ data }: { data: Project }) {
 
 	return (
 		<StudioEditor
-			// className="h-screen"
+			className="grow"
 			options={{
 				licenseKey: process.env.NEXT_GRAPESJS_PUBLIC_KEY || "",
 				onReady: (editor) => {
