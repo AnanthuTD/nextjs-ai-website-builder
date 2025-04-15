@@ -247,7 +247,7 @@ export default function Editor({ data }: { data: Project }) {
 		<StudioEditor
 			className="grow"
 			options={{
-				licenseKey: process.env.NEXT_GRAPESJS_PUBLIC_KEY || "",
+				licenseKey: process.env.NEXT_PUBLIC_GRAPESJS_PUBLIC_KEY || "",
 				onReady: (editor) => {
 					console.log("Editor is ready");
 					setEditorInstance(editor);
