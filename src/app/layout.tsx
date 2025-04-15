@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "AI Web Builder",
 	description: "Website builder powered by AI",
-	icons: "/transparent-icon.png"
+	icons: "/transparent-icon.png",
 };
 
 export default function RootLayout({

@@ -12,7 +12,9 @@ const ChatFlat = ({
 	own = false,
 	onGenerateCode = () => {},
 	isGenerating,
+	showGenerate
 }: {
+	showGenerate: boolean
 	chat: IChatFlat;
 	own?: boolean;
 	onGenerateCode: (prompt: string) => void;
@@ -61,11 +63,10 @@ const ChatFlat = ({
 													),
 												}} */
 											>
-												{((chat.message as string) || "") +
-													(isGenerating ? blinkingCursorString : "")}
+												{((chat.message as string) || "")}
 											</ReactMarkdown>
 										</div>
-										{chat.isRefinedPrompt && (
+										{showGenerate && (
 											<Button
 												onClick={() => onGenerateCode(chat.message as string)}
 												disabled={isGenerating}

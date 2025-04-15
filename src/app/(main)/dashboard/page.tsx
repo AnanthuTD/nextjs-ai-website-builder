@@ -1,6 +1,13 @@
+import { createUser } from "@/app/actions/createUser";
 import Dashboard from "@/components/global/dashboard";
+import { auth } from "@clerk/nextjs/server";
 
-function App() {
+async function App() {
+	const { userId } = await auth();
+	if (userId) {
+		createUser(userId);
+	}
+
 	return (
 		<>
 			<Dashboard />

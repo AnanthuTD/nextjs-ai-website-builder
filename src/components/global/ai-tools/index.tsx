@@ -25,86 +25,122 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+interface Content {
+	html: string;
+	css: string;
+	js: string;
+}
+
 interface Props {
 	initialPrompt?: string;
-	initialContent?: { html: string; css: string };
-	onUpdateContent: (content: { html: string; css: string }) => void;
+	onUpdateContent: (content: Content) => void;
 	updateAiGeneratedBlock: (blocks: Block[]) => void;
 	language: string;
 	colors: Colors | null;
-	firstTime?: boolean;
 	projectId?: string;
+	editor: any;
 }
 
 type AiModel = "gemini" | "deepseek";
 
 const AiChatBox: React.FC<Props> = ({
 	initialPrompt = "",
-	initialContent = { html: "", css: "" },
 	onUpdateContent,
 	updateAiGeneratedBlock,
 	language,
 	colors,
-	firstTime = true,
 	projectId,
+	editor,
 }) => {
 	const { userId: clerkId } = useAuth();
 	const [chats, setChats] = useState<IChatFlat[]>([]);
 	const [message, setMessage] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [content, setContent] = useState(initialContent);
+	const [content, setContent] = useState<Content>({
+		html: "",
+		css: "",
+		js: "",
+	});
 	const [selectedModel, setSelectedModel] = useState<AiModel>("deepseek");
+	const [isEditorReady, setEditorReady] = useState(false);
+	const [firstTime, setFirstTime] = useState(true);
+	const [isLoadingChats, setIsLoadingChats] = useState(false);
 	const chatContainerRef = useRef<HTMLDivElement>(null);
 
-	// Scroll to bottom when chats update
+	useEffect(() => {
+		const handleReady = (editor: any) => {
+			console.log("on ready");
+			console.log(editor.getHtml());
+			setEditorReady(true);
+			const html = editor.getHtml();
+			const css = editor.getCss();
+			const js = editor.getJs();
+			setContent({
+				html,
+				css,
+				js,
+			});
+		};
+
+		editor.onReady(handleReady);
+	}, [editor]);
+
 	useEffect(() => {
 		if (chatContainerRef.current) {
-			chatContainerRef.current.scrollTop =
-				chatContainerRef.current.scrollHeight;
+			requestAnimationFrame(() => {
+				chatContainerRef.current!.scrollTop =
+					chatContainerRef.current!.scrollHeight;
+			});
 		}
 	}, [chats]);
 
-	// Handle initial prompt
 	useEffect(() => {
 		if (
 			!firstTime ||
 			!clerkId ||
 			!initialPrompt.trim() ||
-			chats.length ||
-			!projectId
+			!projectId ||
+			!isEditorReady
 		)
 			return;
 
 		const initializeChat = async () => {
-			const fetchedChats = await getChatsAction({ projectId });
-			console.log("Fetched chats: ", fetchedChats);
-			setChats(fetchedChats);
+			setFirstTime(false);
+			setIsLoadingChats(true);
+			try {
+				const fetchedChats = await getChatsAction({ projectId });
+				console.log("Fetched chats: ", fetchedChats);
+				setChats(fetchedChats);
+				setIsLoadingChats(false);
 
-			if (fetchedChats.length) return;
+				if (fetchedChats.length) return;
 
-			const userMessage: IChatFlat = {
-				id: crypto.randomUUID(),
-				message: initialPrompt,
-				userId: clerkId,
-				isAi: false,
-				projectId,
-				createdAt: new Date(),
-			};
-			const aiMessage: IChatFlat = {
-				id: crypto.randomUUID(),
-				message: "How would you like me to help with this project?",
-				userId: null,
-				isAi: true,
-				projectId,
-				createdAt: new Date(),
-			};
+				const userMessage: IChatFlat = {
+					id: crypto.randomUUID(),
+					message: initialPrompt,
+					userId: clerkId,
+					isAi: false,
+					projectId,
+					createdAt: new Date(),
+				};
+				const aiMessage: IChatFlat = {
+					id: crypto.randomUUID(),
+					message: "How would you like me to help with this project?",
+					userId: null,
+					isAi: true,
+					projectId,
+					createdAt: new Date(),
+				};
 
-			setChats([aiMessage, userMessage]);
-			await handleSendMessage(initialPrompt);
+				setChats([aiMessage, userMessage]);
+				await handleSendMessage(initialPrompt, true);
+			} catch (error) {
+				console.error(error);
+				toast.error("Unknown error occurred!");
+			}
 		};
-
 		initializeChat();
-	}, [firstTime, clerkId, initialPrompt, chats.length, projectId]);
+	}, [firstTime, clerkId, initialPrompt, projectId, isEditorReady]);
 
 	const generateBlocks = useCallback(async () => {
 		if (!content.html || isGenerating) return;
@@ -180,7 +216,7 @@ const AiChatBox: React.FC<Props> = ({
 	);
 
 	const handleSendMessage = useCallback(
-		async (prompt: string) => {
+		async (prompt: string, initial: boolean = false) => {
 			if (!prompt.trim() || isGenerating || !clerkId || !projectId) {
 				if (!clerkId) toast.error("User not authenticated");
 				if (!projectId) toast.error("Project ID is required");
@@ -196,17 +232,16 @@ const AiChatBox: React.FC<Props> = ({
 				createdAt: new Date(),
 			};
 
-			setChats((prev) => {
-				const updatedChats = [...prev, newUserMessage];
-				if (content.html) {
-					generateCode(prompt);
-					return updatedChats;
-				}
+			setChats((prev) => [...prev, newUserMessage]);
+			setMessage("");
 
+			if (content.html && !initial) {
+				await generateCode(prompt);
+			} else {
 				const streamResponse = async () => {
 					setIsGenerating(true);
 					try {
-						const chatHistory = updatedChats.map((chat) => ({
+						const chatHistory = [...chats, newUserMessage].map((chat) => ({
 							role: chat.isAi ? "assistant" : "user",
 							content: chat.message,
 						}));
@@ -242,7 +277,7 @@ const AiChatBox: React.FC<Props> = ({
 								message: "",
 								isStreaming: true,
 								isAi: true,
-								aiModel: "gemini-1.5-flash-latest",
+								aiModel: selectedModel,
 								projectId,
 								createdAt: new Date(),
 								userId: null,
@@ -276,14 +311,6 @@ const AiChatBox: React.FC<Props> = ({
 							throw new Error("No response received from AI");
 						}
 
-						await createChatAction({
-							message: aiResponse,
-							aiModel: "gemini",
-							isAi: true,
-							projectId,
-							createdAt: new Date(),
-						});
-
 						toast.success("Design specification generated");
 					} catch (error) {
 						console.error("Streaming error:", error);
@@ -302,13 +329,18 @@ const AiChatBox: React.FC<Props> = ({
 					}
 				};
 
-				streamResponse();
-				return updatedChats;
-			});
-
-			setMessage("");
+				await streamResponse();
+			}
 		},
-		[clerkId, projectId, isGenerating, content, generateCode]
+		[
+			clerkId,
+			projectId,
+			isGenerating,
+			content,
+			generateCode,
+			chats,
+			selectedModel,
+		]
 	);
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -318,6 +350,8 @@ const AiChatBox: React.FC<Props> = ({
 		}
 	};
 
+	if (!isEditorReady || isLoadingChats) return <div>Loading...</div>;
+
 	return (
 		<div className="flex flex-col gap-y-2 p-3 min-h-full justify-between text-white rounded-xl">
 			<h3 className="text-lg font-semibold">Design Assistant</h3>
@@ -326,7 +360,7 @@ const AiChatBox: React.FC<Props> = ({
 				ref={chatContainerRef}
 				className="flex flex-col gap-y-2 px-1 flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-indigo-100"
 			>
-				{chats.map((chat) => (
+				{chats.map((chat, index) => (
 					<ChatFlat
 						key={chat.id}
 						chat={chat}
@@ -337,6 +371,7 @@ const AiChatBox: React.FC<Props> = ({
 							chat.isAi &&
 							chat.id === chats[chats.length - 1]?.id
 						}
+						showGenerate={chat.isRefinedPrompt && chats.length === index + 1}
 					/>
 				))}
 				{isGenerating && (
@@ -378,7 +413,9 @@ const AiChatBox: React.FC<Props> = ({
 					placeholder="Type your message..."
 					disabled={isGenerating}
 					rows={1}
-					className="flex-grow bg-white focus-visible:ring-indigo-300 resize-none pr-24 text-black"
+					className={`flex-grow bg-white focus-visible:ring-indigo-300 resize-none pr-24 text-black ${
+						isGenerating ? "opacity-50 cursor-not-allowed" : ""
+					}`}
 				/>
 				{isGenerating ? (
 					<CircleStopIcon className="text-white" />
