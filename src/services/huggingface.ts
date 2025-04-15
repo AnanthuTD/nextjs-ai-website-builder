@@ -59,26 +59,27 @@ ${
 
 **Requirements:**
 1. Implement all details provided in the specification (e.g., backgrounds, fonts, layouts, interactions).
-2. Use semantic HTML5 and modern CSS.
-3. Embed all JavaScript within the HTML using a <script> tag in the <body> or <head> as appropriate (no separate JS files or output unless specified).
-4. Ensure the webpage is responsive and accessible (e.g., ARIA attributes, keyboard navigation).
-5. Include JavaScript for dynamic features (e.g., hover effects, form validation, animations) if specified or implied by the design.
-6. Fill in any gaps with appropriate design choices that complement the specification.
-7. Output ONLY valid JSON with \`html\` and \`css\` keys. The \`html\` must include any JavaScript within a <script> tag.
+2. Use semantic HTML5 and Tailwind CSS via CDN (<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>) for styling whenever possible, applying utility classes to achieve the design.
+3. Use raw CSS only when Tailwind cannot meet specific requirements (e.g., complex animations, custom keyframes, or unsupported styles).
+4. Embed all JavaScript within the HTML using a <script> tag in the <body> or <head> as appropriate (no separate JS files or output unless specified).
+5. Ensure the webpage is responsive and accessible (e.g., ARIA attributes, keyboard navigation).
+6. Include JavaScript for dynamic features (e.g., hover effects, form validation, animations) if specified or implied by the design.
+7. Fill in any gaps with appropriate design choices that complement the specification.
+8. Output ONLY valid JSON with \`html\` and \`css\` keys. The \`html\` must include the Tailwind CDN and any JavaScript within a <script> tag. The \`css\` key contains raw CSS only when necessary; it may be empty if Tailwind handles all styling.
+9. Do not include any comments in the generated HTML, CSS, or JavaScript.
 
 **Guidelines:**
 - Language: All text content should be in ${language}.
-- Colors: Use specified colors if provided; otherwise, choose complementary colors:
-  - Primary: ${colors?.primary || "choose"}
-  - Secondary: ${colors?.secondary || "choose"}
-  - Background: ${colors?.background || "choose"}
-  - Text: ${colors?.text || "choose"}
-  - Neutral: ${colors?.neutral || "choose"}
-  - Accent: ${colors?.accent || "choose"}
-- Use Poppins font (Google Fonts) unless otherwise specified.
-- Include minimal CSS transitions unless animations are specified.
+- Colors: Use specified colors if provided, mapping them to Tailwind classes (e.g., #FFFFFF to bg-white, #333333 to text-gray-800); otherwise, choose complementary Tailwind classes:
+  - Primary: ${colors?.primary || "choose"} (e.g., buttons, headers)
+  - Secondary: ${colors?.secondary || "choose"} (e.g., highlights)
+  - Background: ${colors?.background || "choose"} (e.g., page background)
+  - Text: ${colors?.text || "choose"} (e.g., body text)
+  - Neutral: ${colors?.neutral || "choose"} (e.g., borders)
+  - Accent: ${colors?.accent || "choose"} (e.g., small highlights)
+- Use Poppins font (Google Fonts) unless otherwise specified, via <link href='https://fonts.googleapis.com/css2?family=Poppins&display=swap'>.
 - JavaScript should be minimal, clean, and embedded within the HTML <script> tag (e.g., for event listeners or DOM manipulation).
-- Keep code clean, concise, and well-commented.
+- Keep code clean and concise.
 
 **Output:**
 {"html": "...", "css": "..."}
@@ -117,13 +118,13 @@ ${
 		try {
 			const jsonResult: GenerateHtmlCssResponse = JSON.parse(cleanResponse);
 
-			if (!jsonResult.html || !jsonResult.css) {
-				throw new Error("Missing html/css in response");
+			if (!jsonResult.html) {
+				throw new Error("Missing html in response");
 			}
 
 			return {
 				html: jsonResult.html,
-				css: jsonResult.css,
+				css: jsonResult.css || "",
 			};
 		} catch (parseError) {
 			console.error("🔴 JSON Parse Error:", parseError);
