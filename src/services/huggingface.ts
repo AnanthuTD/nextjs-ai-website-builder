@@ -1,5 +1,3 @@
-'use server'
-
 import { Colors } from "@/components/global/ai-modal";
 import { HfInference } from "@huggingface/inference";
 
@@ -29,7 +27,7 @@ export async function generateHtmlCssWithHuggingFace(
         return null;
     }
 
-    const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
+    const hf = new HfInference(process.env.NEXT_PUBLIC_HUGGINGFACE_TOKEN);
 
     try {
         const hasExistingContent = content?.html;

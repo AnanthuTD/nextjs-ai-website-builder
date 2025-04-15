@@ -1,5 +1,3 @@
-"use server";
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface ChatMessage {
@@ -35,7 +33,7 @@ export async function generateRefinePrompt(
 							(msg) =>
 								`${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
 						)
-						.join("\n")}\n\n"`
+						.join("\n")}\n\n`
 				: "";
 
 		const existingContent = content?.html
@@ -69,30 +67,22 @@ ${userPrompt}
 **Output Format:**
 **Design Specification:**
 
-**Overall Goal/Purpose:**  
-[Concise statement of the webpage's purpose based on the user's request]
+**Overall Goal/Purpose:** [Concise statement of the webpage's purpose based on the user's request]
 
-**Header:**  
-- [Specific design requirements or modifications, e.g., background, text style, animations]
+**Header:** - [Specific design requirements or modifications, e.g., background, text style, animations]
 
-**Navigation:**  
-- [Requirements or modifications, e.g., layout, menu items, responsive behavior]
+**Navigation:** - [Requirements or modifications, e.g., layout, menu items, responsive behavior]
 
-**Hero Section:**  
-- [Requirements or modifications, e.g., imagery, text, buttons]
+**Hero Section:** - [Requirements or modifications, e.g., imagery, text, buttons]
 
-**Main Content Sections:**  
-- [Section Name]: [Requirements or modifications, e.g., layout, content type]
+**Main Content Sections:** - [Section Name]: [Requirements or modifications, e.g., layout, content type]
 - [Section Name]: [Requirements or modifications]
 
-**Call-to-Action:**  
-- [Requirements or modifications, e.g., button styles, placement]
+**Call-to-Action:** - [Requirements or modifications, e.g., button styles, placement]
 
-**Footer:**  
-- [Requirements or modifications, e.g., content, styling]
+**Footer:** - [Requirements or modifications, e.g., content, styling]
 
-**Additional Requirements:**  
-- [e.g., color scheme, accessibility features, responsiveness]
+**Additional Requirements:** - [e.g., color scheme, accessibility features, responsiveness]
 
 **Guidelines:**
 - Be specific and actionable (e.g., "Use a dark stone texture background" instead of "Improve the background").
