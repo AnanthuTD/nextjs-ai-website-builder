@@ -18,6 +18,7 @@ import PublishComponent from "../publish-component";
 interface Content {
 	html: string;
 	css: string;
+	js: string;
 }
 
 export interface Block {
@@ -29,13 +30,7 @@ export interface Block {
 export default function Editor({ data }: { data: Project }) {
 	const { id: projectId = "" } = data;
 	const { userId: clerkId } = useAuth();
-	const [blocks, setBlocks] = useState<Block[]>([]);
 	const [projectDataId, setProjectDataId] = useState<string | null>(null);
-	const [editorInstance, setEditorInstance] = useState<any>(null);
-	const [initialContent, setInitialContent] = useState<Content>({
-		html: "",
-		css: "",
-	});
 	const [isProjectLoaded, setIsProjectLoaded] = useState(false);
 
 	// Load stylesheet
@@ -83,65 +78,6 @@ export default function Editor({ data }: { data: Project }) {
 		loadInitialData();
 	}, [projectId]);
 
-	// Load blocks
-	useEffect(() => {
-		if (projectDataId) {
-			loadProjectBlocksData(projectDataId)
-				.then((loadedBlocks) => {
-					setBlocks(loadedBlocks);
-				})
-				.catch((error) => {
-					console.error("Error loading blocks:", error);
-					toast.error("Failed to load blocks");
-				});
-		}
-	}, [projectDataId]);
-
-	// Load initial content
-	useEffect(() => {
-		if (editorInstance) {
-			getPageContent(editorInstance).then((content) => {
-				setInitialContent(content);
-			});
-		}
-	}, [editorInstance]);
-
-	// Re-render AI Tools tab when editorInstance updates
-	useEffect(() => {
-		if (!editorInstance) return;
-
-		// Remove existing AI tab
-		editorInstance.runCommand("studio:layoutRemove", { id: "ai-tab" });
-
-		// Re-add AI tab with updated editorInstance
-		editorInstance.runCommand("studio:layoutAdd", {
-			id: "ai-tab",
-			layout: {
-				type: "custom",
-				component: () => (
-					<>
-						<AiChatBox
-							initialPrompt={data?.prompt ?? ""}
-							language={data.language ?? ""}
-							colors={data.colors ?? null}
-							onUpdateContent={(content) => updatePage(editorInstance, content)}
-							initialContentFn={() => getPageContent(editorInstance)}
-							updateAiGeneratedBlock={(blocks) =>
-								updateAiGeneratedBlock(editorInstance, blocks)
-							}
-							firstTime={async () => !(await loadProjectData(projectId))}
-							projectId={projectId}
-							editor={editorInstance}
-						/>
-					</>
-				),
-				style: { height: "100%", display: "flex" },
-			},
-			header: { label: "AI" },
-			placer: { type: "static", layoutId: "sidebarRightTabs" },
-		});
-	}, [editorInstance, projectId, data]);
-
 	const updatePage = (editor: any, content: Content) => {
 		if (!editor) {
 			toast.error("Editor instance not found!");
@@ -153,7 +89,6 @@ export default function Editor({ data }: { data: Project }) {
 			const css = editor.Css;
 			css.clear();
 			css.addRules(content.css);
-			setInitialContent(content);
 		} catch (error) {
 			console.error("Error updating page:", error);
 			toast.error("Failed to update page");
@@ -162,13 +97,14 @@ export default function Editor({ data }: { data: Project }) {
 
 	const getPageContent = async (editorInstance: any) => {
 		if (!editorInstance) {
-			return { html: "", css: "" };
+			return { html: "", css: "", js: "" };
 		}
 
 		const html = editorInstance.getHtml() || "";
 		const css = editorInstance.getCss() || "";
+		const js = editorInstance.getJs() || "";
 
-		console.log("getPageContent: ", html, css);
+		console.log("getPageContent: ", html, css, js);
 
 		try {
 			const project = await loadProjectData(projectId);
@@ -176,11 +112,13 @@ export default function Editor({ data }: { data: Project }) {
 				return {
 					html: sampleTemplates[data.template].html || "",
 					css: sampleTemplates[data.template].css || "",
+					js: sampleTemplates[data.template].css || "",
 				};
 			}
 			return {
 				html,
 				css,
+				js,
 			};
 		} catch (error) {
 			console.error("Error in getPageContent:", error);
@@ -188,8 +126,9 @@ export default function Editor({ data }: { data: Project }) {
 				? {
 						html: sampleTemplates[data.template].html || "",
 						css: sampleTemplates[data.template].css || "",
+						js: sampleTemplates[data.template].js || "",
 				  }
-				: { html: "", css: "" };
+				: { html: "", css: "", js: "" };
 		}
 	};
 
@@ -223,21 +162,12 @@ export default function Editor({ data }: { data: Project }) {
 
 		try {
 			await saveProjectBlocksData(projectDataId, blocks);
-			setBlocks(blocks);
 			toast.success("Blocks saved successfully");
 		} catch (error) {
 			console.error("Error saving blocks:", error);
 			toast.error("Failed to save blocks");
 		}
 	};
-
-	useEffect(() => {
-		if (!editorInstance) return;
-
-		editorInstance.onReady(() => {
-			console.log("editor is ready useeffect");
-		});
-	}, [editorInstance]);
 
 	if (!isProjectLoaded) {
 		return <div>Loading project...</div>;
@@ -250,8 +180,11 @@ export default function Editor({ data }: { data: Project }) {
 				licenseKey: process.env.NEXT_PUBLIC_GRAPESJS_PUBLIC_KEY || "",
 				onReady: (editor) => {
 					console.log("Editor is ready");
-					setEditorInstance(editor);
-					editor.onReady((args) => {
+					editor.onReady(async (args) => {
+						if (projectDataId) {
+							const loadedBlocks = await loadProjectBlocksData(projectDataId);
+							updateAiGeneratedBlock(editor, loadedBlocks);
+						}
 						console.log(args);
 					});
 				},
@@ -348,24 +281,35 @@ export default function Editor({ data }: { data: Project }) {
 									value: "ai-tab",
 									tabs: [
 										{
-											id: "styles",
-											label: "Styles",
-											children: {
-												type: "column",
-												style: { height: "100%" },
-												children: [
-													{ type: "panelSelectors", style: { padding: 5 } },
-													{ type: "panelStyles" },
-												],
-											},
-										},
-										{
-											id: "props",
-											label: "Properties",
-											children: {
-												type: "panelProperties",
-												style: { padding: 5, height: "100%" },
-											},
+											id: "ai-tab",
+											label: "AI",
+											children: [
+												{
+													type: "custom",
+													component: ({ editor }) => (
+														<>
+															<AiChatBox
+																initialPrompt={data?.prompt ?? ""}
+																language={data.language ?? ""}
+																colors={data.colors ?? null}
+																onUpdateContent={(content) =>
+																	updatePage(editor, content)
+																}
+																initialContentFn={() => getPageContent(editor)}
+																updateAiGeneratedBlock={(blocks) =>
+																	updateAiGeneratedBlock(editor, blocks)
+																}
+																firstTime={async () =>
+																	!(await loadProjectData(projectId))
+																}
+																projectId={projectId}
+																editor={editor}
+															/>
+														</>
+													),
+													style: { height: "100%", display: "flex" },
+												},
+											],
 										},
 										{
 											id: "publish",
@@ -388,37 +332,24 @@ export default function Editor({ data }: { data: Project }) {
 											},
 										},
 										{
-											id: "ai-tab",
-											label: "AI",
-											children: [
-												{
-													type: "custom",
-													component: ({ editor }) => (
-														<>
-															<AiChatBox
-																initialPrompt={data?.prompt ?? ""}
-																language={data.language ?? ""}
-																colors={data.colors ?? null}
-																onUpdateContent={(content) =>
-																	updatePage(editor, content)
-																}
-																initialContentFn={() =>
-																	getPageContent(editor)
-																}
-																updateAiGeneratedBlock={(blocks) =>
-																	updateAiGeneratedBlock(editor, blocks)
-																}
-																firstTime={async () =>
-																	!(await loadProjectData(projectId))
-																}
-																projectId={projectId}
-																editor={editor}
-															/>
-														</>
-													),
-													style: { height: "100%", display: "flex" },
-												},
-											],
+											id: "styles",
+											label: "Styles",
+											children: {
+												type: "column",
+												style: { height: "100%" },
+												children: [
+													{ type: "panelSelectors", style: { padding: 5 } },
+													{ type: "panelStyles" },
+												],
+											},
+										},
+										{
+											id: "props",
+											label: "Properties",
+											children: {
+												type: "panelProperties",
+												style: { padding: 5, height: "100%" },
+											},
 										},
 									],
 								},

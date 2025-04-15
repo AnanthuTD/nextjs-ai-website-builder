@@ -1,7 +1,9 @@
 import { Colors } from "@/components/global/ai-modal";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(
+	process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
+);
 const model = genAI.getGenerativeModel({
 	model: "gemini-1.5-flash-latest",
 	generationConfig: {
@@ -19,16 +21,17 @@ export async function generateHtmlCss(
 	content?: {
 		html: string;
 		css: string;
+		js?: string;
 	},
 	language: string = "English",
-	colors: Colors = ({
+	colors: Colors = {
 		primary: "",
-		secondary: "", 
-		background: "", 
+		secondary: "",
+		background: "",
 		text: "",
 		neutral: "",
-		accent: "", 
-	})
+		accent: "",
+	}
 ): Promise<GenerateHtmlCssResponse | null> {
 	if (!prompt?.trim()) {
 		console.error("🔴 Prompt is empty");
@@ -39,45 +42,51 @@ export async function generateHtmlCss(
 		const hasExistingContent = content?.html;
 
 		const existingContent = hasExistingContent
-			? `**Existing Code:**\nHTML:\n${content.html}\nCSS:\n${content.css}`
+			? `**Existing Code:**\nHTML:\n${content.html}\nCSS:\n${
+					content.css
+			  }\nJavaScript (if any, embedded in HTML or separate):\n${
+					content.js || "None"
+			  }`
 			: "No existing content - generate from scratch";
 
 		const systemInstruction = `
-You are a web developer creating a small, beautiful webpage. ${
-			hasExistingContent
-				? "Modify the existing code minimally per the prompt. Return the full modified HTML and CSS."
-				: "Generate a small, elegant webpage for: " + prompt
-		}
-
-**Requirements:**
-1. ${
-			hasExistingContent
-				? "Modify per: " + prompt + ". Keep unchanged parts intact."
-				: "Create per: " + prompt
-		}
-2. Output ONLY valid JSON with \`html\` and \`css\` keys
-3. Use semantic HTML5 and modern CSS
-4. Keep it small: header, hero, one content section, footer with newsletter
-5. Ensure mobile responsiveness
-6. Design: simple, elegant, beautiful, no complex animations
-
-**Guidelines:**
-- Use Poppins font (Google Fonts)
-- Language: All text content should be in ${language}
-- Colors: Use these if provided; otherwise, choose colors that complements the purpose of the page:
-  - Primary: ${colors?.primary || "choose"} (e.g., buttons, headers)
-  - Secondary: ${
-		colors?.secondary || "choose"
-	} (e.g., highlights, secondary buttons)
-  - Background: ${colors?.background || "choose"} (e.g., page background)
-  - Text: ${colors?.text || "choose"} (e.g., body text)
-  - Neutral: ${colors?.neutral || "choose"} (e.g., borders, subtle backgrounds)
-  - Accent: ${colors?.accent || "choose"} (e.g., small highlights)
-- Minimal transitions
-- Keep code concise
+You are a web developer tasked with creating or modifying a webpage based on a detailed design specification provided in the prompt. The prompt contains specific requirements for the structure, style, and functionality of the page.
 
 **Input:**
 ${existingContent}
+
+**Design Specification:**
+${prompt}
+
+**Your Task:**
+${
+	hasExistingContent
+		? "Modify the existing HTML and CSS to fully incorporate the requirements specified in the design specification. Preserve the existing structure, style, and functionality where not explicitly changed. Embed any JavaScript within the HTML in a <script> tag."
+		: "Generate a new webpage from scratch that accurately implements every aspect of the design specification, including HTML, CSS, and JavaScript embedded in the HTML."
+}
+
+**Requirements:**
+1. Implement all details provided in the specification (e.g., backgrounds, fonts, layouts, interactions).
+2. Use semantic HTML5 and modern CSS.
+3. Embed all JavaScript within the HTML using a <script> tag in the <body> or <head> as appropriate (no separate JS files or output unless specified).
+4. Ensure the webpage is responsive and accessible (e.g., ARIA attributes, keyboard navigation).
+5. Include JavaScript for dynamic features (e.g., hover effects, form validation, animations) if specified or implied by the design.
+6. Fill in any gaps with appropriate design choices that complement the specification.
+7. Output ONLY valid JSON with \`html\` and \`css\` keys. The \`html\` must include any JavaScript within a <script> tag.
+
+**Guidelines:**
+- Language: All text content should be in ${language}.
+- Colors: Use specified colors if provided; otherwise, choose complementary colors:
+  - Primary: ${colors?.primary || "choose"}
+  - Secondary: ${colors?.secondary || "choose"}
+  - Background: ${colors?.background || "choose"}
+  - Text: ${colors?.text || "choose"}
+  - Neutral: ${colors?.neutral || "choose"}
+  - Accent: ${colors?.accent || "choose"}
+- Use Poppins font (Google Fonts) unless otherwise specified.
+- Include minimal CSS transitions unless animations are specified.
+- JavaScript should be minimal, clean, and embedded within the HTML <script> tag (e.g., for event listeners or DOM manipulation).
+- Keep code clean, concise, and well-commented.
 
 **Output:**
 {"html": "...", "css": "..."}

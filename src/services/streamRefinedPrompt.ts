@@ -23,7 +23,7 @@ export async function streamRefinedPrompt(
 		return null;
 	}
 
-	const apiKey = process.env.GEMINI_API_KEY; // Use process.env for Next.js
+	const apiKey = process.env.GEMINI_API_KEY;
 	if (!apiKey) {
 		console.error("🔴 GEMINI_API_KEY is not set");
 		return null;
