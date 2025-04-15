@@ -166,6 +166,13 @@ const AiChatBox: React.FC<Props> = ({
 		async (prompt: string) => {
 			if (!prompt.trim() || !projectId || isGenerating) return;
 
+			createChatAction({
+				projectId,
+				message: prompt,
+				isAi: false,
+				aiModel: "",
+			});
+
 			setIsGenerating(true);
 			try {
 				const generateContentFunc =
