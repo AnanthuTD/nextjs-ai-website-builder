@@ -9,7 +9,7 @@ import {
 	saveProjectData,
 } from "@/lib/storage";
 import { toast } from "sonner";
-import { sampleTemplates } from "@/lib/templates";
+import { Templates } from "@/lib/templates";
 import { Project } from "@/app/generated/prisma";
 import AiChatBox from "../ai-tools";
 import PublishComponent from "../publish-component";
@@ -84,21 +84,13 @@ export default function Editor({ data }: { data: Project }) {
 			return { html: "", css: "", js: "" };
 		}
 
-		const html = editorInstance.getHtml() || "";
-		const css = editorInstance.getCss() || "";
-		const js = editorInstance.getJs() || "";
-
-		console.log("getPageContent: ", html, css, js);
-
 		try {
-			const project = await loadProjectData(projectId);
-			if (!project && data.template && sampleTemplates[data.template]) {
-				return {
-					html: sampleTemplates[data.template].html || "",
-					css: sampleTemplates[data.template].css || "",
-					js: sampleTemplates[data.template].css || "",
-				};
-			}
+			const html = editorInstance.getHtml() || "";
+			const css = editorInstance.getCss() || "";
+			const js = editorInstance.getJs() || "";
+
+			console.log("getPageContent: ", html, css, js);
+
 			return {
 				html,
 				css,
@@ -106,13 +98,7 @@ export default function Editor({ data }: { data: Project }) {
 			};
 		} catch (error) {
 			console.error("Error in getPageContent:", error);
-			return data.template && sampleTemplates[data.template]
-				? {
-						html: sampleTemplates[data.template].html || "",
-						css: sampleTemplates[data.template].css || "",
-						js: sampleTemplates[data.template].js || "",
-				  }
-				: { html: "", css: "", js: "" };
+			return { html: "", css: "", js: "" };
 		}
 	};
 
@@ -273,7 +259,14 @@ export default function Editor({ data }: { data: Project }) {
 													component: ({ editor }) => (
 														<>
 															<AiChatBox
-																initialPrompt={data?.prompt ?? ""}
+																initialPrompt={
+																	(data?.prompt ?? "") +
+																	`\n${
+																		data.template
+																			? Templates[data.template]
+																			: ""
+																	}`
+																}
 																language={data.language ?? ""}
 																colors={data.colors ?? null}
 																onUpdateContent={(content) =>

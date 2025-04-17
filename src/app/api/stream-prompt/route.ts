@@ -16,30 +16,19 @@ export async function POST(request: NextRequest) {
 			});
 		}
 
-		const clerkId = await getAuthenticatedUserId()
-		if (!clerkId) {
+		const userId = await getAuthenticatedUserId()
+		if (!userId) {
 			return new Response(JSON.stringify({ error: "clerkId is required" }), {
 				status: 401,
 				headers: { "Content-Type": "application/json" },
 			});
 		}
 
-		// Verify user exists
-		const user = await prisma.user.findUnique({ where: { clerkId } });
-		if (!user) {
-			return new Response(JSON.stringify({ error: "User not found" }), {
-				status: 401,
-				headers: { "Content-Type": "application/json" },
-			});
-		}
-
-		console.log("ProjectId in stream prompt: ", projectId)
-
 		// Save user message to Chat
 		if (projectId) {
 			await prisma.chat.create({
 				data: {
-					userId: user.id,
+					userId,
 					projectId,
 					message: userPrompt,
 					isAi: false,

@@ -110,13 +110,6 @@ Prisma.NullTypes = {
  * Enums
  */
 
-exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  clerkId: 'clerkId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -179,7 +172,6 @@ exports.Prisma.QueryMode = {
 
 
 exports.Prisma.ModelName = {
-  User: 'User',
   Project: 'Project',
   Chat: 'Chat',
   ProjectData: 'ProjectData',

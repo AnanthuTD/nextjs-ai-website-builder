@@ -25,17 +25,9 @@ export async function loadProjectAction({ projectId }: LoadProjectInput) {
 			throw new Error("Project not found");
 		}
 
-		const clerkId = await getAuthenticatedUserId();
+		const userId = await getAuthenticatedUserId();
 
-		// Find the user by clerkId
-		const user = await prisma.user.findUnique({
-			where: { clerkId },
-		});
-		if (!user) {
-			throw new Error("User not found");
-		}
-
-		if (project.userId !== user.id) {
+		if (project.userId !== userId) {
 			throw new Error("Unauthorized access to project");
 		}
 

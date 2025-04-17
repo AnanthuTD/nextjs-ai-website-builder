@@ -11,24 +11,16 @@ export const createChatAction = async (
 		| (Prisma.Without<Prisma.ChatUncheckedCreateInput, Prisma.ChatCreateInput> &
 				Prisma.ChatCreateInput)
 ) => {
-	const clerkId = await getAuthenticatedUserId();
+	const userId = await getAuthenticatedUserId();
 
-	if (!clerkId) {
+	if (!userId) {
 		throw new Error("Unauthorized");
-	}
-
-	const user = await prisma.user.findUnique({ where: { clerkId } });
-	if (!user) {
-		return new Response(JSON.stringify({ error: "User not found" }), {
-			status: 401,
-			headers: { "Content-Type": "application/json" },
-		});
 	}
 
 	const chat = await prisma.chat.create({
 		data: {
 			...data,
-			userId: data.isAi ? undefined : user.id,
+			userId: data.isAi ? undefined : userId,
 		},
 	});
 

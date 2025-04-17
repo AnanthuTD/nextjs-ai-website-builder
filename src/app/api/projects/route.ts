@@ -3,22 +3,13 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/clerk-auth";
 
 export async function GET() {
-	const clerkId = await requireAuth();
-	if (clerkId instanceof NextResponse) return clerkId;
-
-	const user = await prisma.user.findUnique({
-		where: { clerkId },
-	});
-
-	if (!user) {
-		NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-		return;
-	}
+	const userId = await requireAuth();
+	if (userId instanceof NextResponse) return userId;
 
 	try {
 		const projects = await prisma.project.findMany({
 			orderBy: { createdAt: "desc" },
-			where: { userId: user.id },
+			where: { userId },
 		});
 		return NextResponse.json(projects);
 	} catch (error) {
@@ -31,23 +22,15 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-	const clerkId = await requireAuth();
-	if (clerkId instanceof NextResponse) return clerkId;
-
-	const user = await prisma.user.findFirst({
-		where: { clerkId },
-	});
-
-	if (!user) {
-		return NextResponse.json({ message: "User not found!" }, { status: 404 });
-	}
+	const userId = await requireAuth();
+	if (userId instanceof NextResponse) return userId;
 
 	try {
 		const { name, prompt, language, template, colors } = await request.json();
 		const project = await prisma.project.create({
 			data: {
 				name: name || "Untitled Project",
-				userId: user.id,
+				userId,
 				prompt,
 				language,
 				template,

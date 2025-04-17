@@ -114,7 +114,7 @@ ${
 		try {
 			const jsonResult: GenerateHtmlCssResponse = JSON.parse(cleanResponse);
 
-			if (!jsonResult.html || !jsonResult.css) {
+			if (!jsonResult.html) {
 				throw new Error("Missing html/css in response");
 			}
 

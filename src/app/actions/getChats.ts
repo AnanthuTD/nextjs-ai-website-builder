@@ -4,9 +4,9 @@ import { getAuthenticatedUserId } from "@/lib/clerk-auth";
 import prisma from "@/lib/prisma";
 
 export const getChatsAction = async ({ projectId }: { projectId: string }) => {
-	const clarkId = await getAuthenticatedUserId();
+	const userId = await getAuthenticatedUserId();
 
-	if (!clarkId) {
+	if (!userId) {
 		throw new Error("Unauthorized");
 	}
 

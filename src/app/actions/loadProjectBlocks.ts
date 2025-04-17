@@ -19,14 +19,10 @@ export async function loadProjectBlocksAction({ projectDataId }: LoadProjectBloc
       throw new Error("projectId and clerkId are required");
     }
 
-    const clerkId = await getAuthenticatedUserId()
+    const userId = await getAuthenticatedUserId()
 
-    // Find the user by clerkId
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-    });
-    if (!user) {
-      throw new Error("User not found");
+    if (!userId) {
+      throw new Error("Unauthorized");
     }
 
     // Load blocks
