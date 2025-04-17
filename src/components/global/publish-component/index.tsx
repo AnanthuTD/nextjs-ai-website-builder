@@ -13,7 +13,7 @@ import {
 	DialogTitle,
 	DialogFooter,
 } from "@/components/ui/dialog";
-import { Copy, Loader2, ExternalLink } from "lucide-react";
+import { Copy, Loader2, ExternalLink, RocketIcon } from "lucide-react";
 
 interface PublishComponentProps {
 	editor: any;
@@ -280,11 +280,16 @@ export default function PublishComponent({
 				onClick={handlePublish}
 				disabled={isPublishing || (!existingSubdomain && !isAvailable)}
 				className="w-full bg-indigo-500"
-        variant={"ghost"}
+				variant={"ghost"}
+				style={{
+					backgroundColor: "white",
+					color: "black"
+				}}
 			>
 				{isPublishing ? (
 					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 				) : null}
+				<RocketIcon color="#c800ff" />
 				{isPublishing
 					? "Publishing..."
 					: existingSubdomain
