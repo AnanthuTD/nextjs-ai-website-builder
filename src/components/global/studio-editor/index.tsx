@@ -10,7 +10,6 @@ import {
 } from "@/lib/storage";
 import { toast } from "sonner";
 import { sampleTemplates } from "@/lib/templates";
-import { useAuth } from "@clerk/nextjs";
 import { Project } from "@/app/generated/prisma";
 import AiChatBox from "../ai-tools";
 import PublishComponent from "../publish-component";
@@ -29,7 +28,6 @@ export interface Block {
 
 export default function Editor({ data }: { data: Project }) {
 	const { id: projectId = "" } = data;
-	const { userId: clerkId } = useAuth();
 	const [projectDataId, setProjectDataId] = useState<string | null>(null);
 	const [isProjectLoaded, setIsProjectLoaded] = useState(false);
 
@@ -44,20 +42,6 @@ export default function Editor({ data }: { data: Project }) {
 			document.head.removeChild(link);
 		};
 	}, []);
-
-	// Ensure user exists
-	useEffect(() => {
-		if (clerkId) {
-			fetch("/api/create-user", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ clerkId }),
-			}).catch((error) => {
-				console.error("Error ensuring user:", error);
-				toast.error("Failed to initialize user");
-			});
-		}
-	}, [clerkId]);
 
 	// Load project data
 	useEffect(() => {
@@ -213,7 +197,7 @@ export default function Editor({ data }: { data: Project }) {
 									pages: [
 										{
 											name: "Landing",
-											component: "<h1>New project</h1>",
+											component: "",
 											id: "index",
 										},
 									],
@@ -224,7 +208,7 @@ export default function Editor({ data }: { data: Project }) {
 							toast.error("Failed to load project");
 							return {
 								project: {
-									pages: [{ name: "Home", component: "<h1>New project</h1>" }],
+									pages: [{ name: "Home", component: "" }],
 								},
 							};
 						}

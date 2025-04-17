@@ -72,9 +72,29 @@ const AiChatBox: React.FC<Props> = ({
 			console.log("on ready");
 			console.log(editor.getHtml());
 			setEditorReady(true);
-			const html = editor.getHtml();
+
+			let html = editor.getHtml();
 			const css = editor.getCss();
 			const js = editor.getJs();
+
+			// Process HTML content
+			if (html) {
+				const innerContent = html
+					.replace(/<body\s*>/i, "")
+					.replace(/<\/body\s*>/i, "")
+					.trim();
+
+				const hasHtmlTags = /<[a-z][\s\S]*>/i.test(innerContent);
+
+				if (!hasHtmlTags) {
+					html = "";
+				} else {
+					html = innerContent;
+				}
+			} else {
+				html = "";
+			}
+
 			setContent({
 				html,
 				css,
@@ -242,6 +262,8 @@ const AiChatBox: React.FC<Props> = ({
 			setChats((prev) => [...prev, newUserMessage]);
 			setMessage("");
 
+			console.log(content)
+
 			if (content.html && !initial) {
 				await generateCode(prompt);
 			} else {
@@ -378,7 +400,7 @@ const AiChatBox: React.FC<Props> = ({
 							chat.isAi &&
 							chat.id === chats[chats.length - 1]?.id
 						}
-						showGenerate={chat.isRefinedPrompt && chats.length === index + 1}
+						showGenerate={chat.isRefinedPrompt}
 					/>
 				))}
 				{isGenerating && (
