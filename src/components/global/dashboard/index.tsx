@@ -14,6 +14,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export type SubmitData = {
 	prompt?: string;
@@ -90,6 +91,7 @@ function Dashboard() {
 			setProjects([newProject, ...projects]);
 			router.push(`/editor/${newProject.id}`);
 		} catch (error) {
+			toast.error("Failed to create project!");
 			console.error(error);
 		}
 	};
